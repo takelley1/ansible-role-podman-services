@@ -4,11 +4,19 @@
 # This container is intended to be used with Home Assistant.
 #
 
-- name: MOSQUITTO | Port whitelisted.
-  community.general.ufw:
-    proto: tcp
-    rule: allow
-    to_port: "{{ mosquitto_port }}"
+# - name: MOSQUITTO | Port whitelisted.
+#   community.general.ufw:
+#     proto: tcp
+#     rule: allow
+#     to_port: "{{ mosquitto_port }}"
+
+- name: MOSQUITTO | Port allowed.
+  firewalld:
+    port: "{{ mosquitto_port }}/tcp"
+    zone: "{{ firewalld_zone }}"
+    immediate: true
+    permanent: true
+    state: enabled
 
 # Don't use "owner" or "group" keys here since mosquitto chowns these
 #   dirs to the container's local user upon starting the container.

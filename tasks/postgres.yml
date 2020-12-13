@@ -4,11 +4,19 @@
 # This container is intended to be used with Home Assistant.
 #
 
-- name: POSTGRES | Port whitelisted.
-  community.general.ufw:
-    proto: tcp
-    rule: allow
-    to_port: "{{ postgres_port }}"
+# - name: POSTGRES | Port whitelisted.
+#   community.general.ufw:
+#     proto: tcp
+#     rule: allow
+#     to_port: "{{ postgres_port }}"
+
+- name: POSTGRES | Port allowed.
+  firewalld:
+    port: "{{ postgres_port }}/tcp"
+    zone: "{{ firewalld_zone }}"
+    immediate: true
+    permanent: true
+    state: enabled
 
 - name: POSTGRES | Config directory created.
   ansible.builtin.file:
