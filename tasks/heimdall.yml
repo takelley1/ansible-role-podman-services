@@ -16,6 +16,7 @@
   containers.podman.podman_container:
     name: "{{ heimdall_container_name }}"
     image: linuxserver/heimdall:latest
+    state: started
     env_file: "{{ heimdall_config_dir }}/heimdall.env"
     restart_policy: on-failure:5
     env:
@@ -23,3 +24,32 @@
     ip: "{{ heimdall_internal_ip }}"
     volumes:
       - "{{ heimdall_config_dir }}/config_bind_mount:/config"
+
+- name: HEIMDALL | Systemd config deployed.
+  block:
+    - name: HEIMDALL | Get container ID.
+      containers.podman.podman_container_info:
+        name: heimdall
+      register: container_info
+
+    - name: HEIMDALL | Set fact for container ID.
+      set_fact:
+        heimdall_id: "{{ container_info.containers[0].Id }}"
+
+    - name: HEIMDALL | Systemd unit file deployed.
+      template:
+        src: heimdall/systemd/heimdall-podman.service.j2
+        dest: /etc/systemd/system/heimdall-podman.service
+        seuser: system_u
+        serole: object_r
+        setype: systemd_unit_file_t
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: HEIMDALL | Systemd service enabled.
+      systemd:
+        name: heimdall-podman.service
+        enabled: true
+        masked: false
+        daemon_reload: true

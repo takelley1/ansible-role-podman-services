@@ -39,3 +39,32 @@
     ip: "{{ postgres_internal_ip }}"
     volumes:
       - "{{ postgres_config_dir }}/data_bind_mount:/var/lib/postgresql/data/pgdata"
+
+- name: POSTGRES | Systemd config deployed.
+  block:
+    - name: POSTGRES | Get container ID.
+      containers.podman.podman_container_info:
+        name: postgres
+      register: container_info
+
+    - name: POSTGRES | Set fact for container ID.
+      set_fact:
+        heimdall_id: "{{ container_info.containers[0].Id }}"
+
+    - name: POSTGRES | Systemd unit file deployed.
+      template:
+        src: postgres/systemd/postgres-podman.service.j2
+        dest: /etc/systemd/system/postgres-podman.service
+        seuser: system_u
+        serole: object_r
+        setype: systemd_unit_file_t
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: POSTGRES | Systemd service enabled.
+      systemd:
+        name: postgres-podman.service
+        enabled: true
+        masked: false
+        daemon_reload: true

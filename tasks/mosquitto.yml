@@ -86,12 +86,52 @@
       - /etc/localtime:/etc/localtime:ro
 
 - name: MOSQUITTO | Password hashed.
-  ansible.builtin.shell: podman exec "{{ mosquitto_container_name }}" /usr/bin/mosquitto_passwd -U /mosquitto/config/mosquitto.password
+  shell: podman exec "{{ mosquitto_container_name }}" /usr/bin/mosquitto_passwd -U /mosquitto/config/mosquitto.password
   changed_when: false
   when: mosquitto_use_password
 
 - name: MOSQUITTO | Container restarted.
   containers.podman.podman_container:
     name: "{{ mosquitto_container_name }}"
-    restart: true
+    image: eclipse-mosquitto:latest
+    state: force_restarted
+    env_file: "{{ mosquitto_config_dir }}/{{ mosquitto_container_name }}.env"
+    restart_policy: on-failure:5
+    publish:
+      - "{{ mosquitto_port }}:{{ mosquitto_port }}"
+    ip: "{{ mosquitto_internal_ip }}"
+    volumes:
+      - "{{ mosquitto_config_dir }}/config_bind_mount:/mosquitto/config"
+      - "{{ mosquitto_config_dir }}/data_bind_mount:/mosquitto/data"
+      - "{{ mosquitto_config_dir }}/log_bind_mount:/mosquitto/log"
+      - /etc/localtime:/etc/localtime:ro
   when: mosquitto_use_password or certfiles.changed or configfiles.changed
+
+- name: MOSQUITTO | Systemd config deployed.
+  block:
+    - name: MOSQUITTO | Get container ID.
+      containers.podman.podman_container_info:
+        name: eclipse-mosquitto
+      register: container_info
+
+    - name: MOSQUITTO | Set fact for container ID.
+      set_fact:
+        heimdall_id: "{{ container_info.containers[0].Id }}"
+
+    - name: MOSQUITTO | Systemd unit file deployed.
+      template:
+        src: mosquitto/systemd/mosquitto-podman.service.j2
+        dest: /etc/systemd/system/mosquitto-podman.service
+        seuser: system_u
+        serole: object_r
+        setype: systemd_unit_file_t
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: MOSQUITTO | Systemd service enabled.
+      systemd:
+        name: mosquitto-podman.service
+        enabled: true
+        masked: false
+        daemon_reload: true
