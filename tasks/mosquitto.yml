@@ -1,0 +1,97 @@
+---
+
+#
+# This container is intended to be used with Home Assistant.
+#
+
+- name: MOSQUITTO | Port whitelisted.
+  community.general.ufw:
+    proto: tcp
+    rule: allow
+    to_port: "{{ mosquitto_port }}"
+
+# Don't use "owner" or "group" keys here since mosquitto chowns these
+#   dirs to the container's local user upon starting the container.
+- name: MOSQUITTO | Config directories created.
+  ansible.builtin.file:
+    path: "{{ mosquitto_config_dir }}/{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - config_bind_mount
+    - data_bind_mount
+    - log_bind_mount
+
+- name: MOSQUITTO | Environment file created.
+  ansible.builtin.copy:
+    dest: "{{ mosquitto_config_dir }}/mosquitto.env"
+    content: "# Mosquitto environment variables"
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0640"
+
+- name: MOSQUITTO | Proxy config added.
+  ansible.builtin.copy:
+    dest: "{{ mosquitto_config_dir }}/mosquitto.env"
+    content: |
+      HTTP_PROXY={{ proxy_url }}
+      HTTPS_PROXY={{ proxy_url }}
+  when: use_proxy
+
+- name: MOSQUITTO | Configuration files deployed.
+  ansible.builtin.template:
+    src: mosquitto/{{ item.src }}.j2
+    dest: "{{ item.dest }}"
+    mode: "0640"
+  loop:
+    - src: mosquitto.conf
+      dest: "{{ mosquitto_config_dir }}/config_bind_mount/mosquitto.conf"
+    - src: mosquitto.logrotate
+      dest: /etc/logrotate.d/mosquitto
+  register: configfiles
+
+- name: MOSQUITTO | Password file deployed.
+  ansible.builtin.template:
+    src: mosquitto/mosquitto.password.j2
+    dest: "{{ mosquitto_config_dir }}/config_bind_mount/mosquitto.password"
+    mode: "0640"
+  changed_when: false
+  when: mosquitto_use_password
+
+- name: MOSQUITTO | Certificates deployed.
+  ansible.builtin.copy:
+    src: mosquitto/{{ item }}
+    dest: "{{ mosquitto_config_dir }}/config_bind_mount/{{ item }}"
+    mode: "0640"
+  loop:
+    - ca.crt
+    - server.crt
+    - server.key
+  when: mosquitto_use_ssl
+  register: certfiles
+
+- name: MOSQUITTO | Container running.
+  containers.podman.podman_container:
+    name: "{{ mosquitto_container_name }}"
+    image: eclipse-mosquitto:latest
+    env_file: "{{ mosquitto_config_dir }}/{{ mosquitto_container_name }}.env"
+    restart_policy: on-failure:5
+    publish:
+      - "{{ mosquitto_port }}:{{ mosquitto_port }}"
+    ip: "{{ heimdall_internal_ip }}"
+    volumes:
+      - "{{ mosquitto_config_dir }}/config_bind_mount:/mosquitto/config"
+      - "{{ mosquitto_config_dir }}/data_bind_mount:/mosquitto/data"
+      - "{{ mosquitto_config_dir }}/log_bind_mount:/mosquitto/log"
+      - /etc/localtime:/etc/localtime:ro
+
+- name: MOSQUITTO | Password hashed.
+  ansible.builtin.shell: podman exec "{{ mosquitto_container_name }}" /usr/bin/mosquitto_passwd -U /mosquitto/config/mosquitto.password
+  changed_when: false
+  when: mosquitto_use_password
+
+- name: MOSQUITTO | Container restarted.
+  containers.podman.podman_container:
+    name: "{{ mosquitto_container_name }}"
+    restart: true
+  when: mosquitto_use_password or certfiles.changed or configfiles.changed

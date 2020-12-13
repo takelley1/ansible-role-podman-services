@@ -1,0 +1,6 @@
+---
+
+config_dir_prefix: /containers
+podman_user: root
+
+timezone: America/New_York

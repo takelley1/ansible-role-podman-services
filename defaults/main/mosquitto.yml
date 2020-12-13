@@ -1,0 +1,15 @@
+---
+
+podman_deploy_mosquitto: true
+
+#mosquitto_password:
+
+mosquitto_internal_ip: "{{ podman_network_gateway | ansible.netcommon.ipmath(+3) }}"
+mosquitto_config_dir: "{{ config_dir_prefix }}/{{ mosquitto_container_name }}"
+mosquitto_container_name: mosquitto
+mosquitto_network_name: main_net
+mosquitto_pod_name: main_pod
+mosquitto_port: "1883"
+mosquitto_use_password: true
+mosquitto_use_ssl: true
+mosquitto_username: mosquitto

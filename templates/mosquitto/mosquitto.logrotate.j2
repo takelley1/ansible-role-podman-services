@@ -1,0 +1,14 @@
+{{ mosquitto_config_dir }}/log_bind_mount/mosquitto.log
+{
+    create
+    dateext
+    dateformat -%Y-%m-%d
+    missingok
+    nocompress
+    notifempty
+    rotate 5
+    size 1M
+    postrotate
+        /usr/bin/docker restart {{ mosquitto_container_name }}
+    endscript
+}

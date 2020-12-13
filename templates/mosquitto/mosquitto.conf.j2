@@ -1,0 +1,19 @@
+{{ ansible_managed | comment }}
+listener {{ mosquitto_port }}
+persistence true
+persistence_location /mosquitto/data/
+
+log_type information
+log_dest file /mosquitto/log/mosquitto.log
+
+{% if mosquitto_use_ssl %}
+cafile /mosquitto/config/ca.crt
+certfile /mosquitto/config/server.crt
+keyfile /mosquitto/config/server.key
+require_certificate false
+{% endif %}
+
+{% if mosquitto_use_password %}
+allow_anonymous false
+password_file /mosquitto/config/mosquitto.password
+{% endif %}

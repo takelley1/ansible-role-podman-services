@@ -1,0 +1,13 @@
+---
+
+podman_deploy_postgres: true
+
+#postgres_db_password:
+
+postgres_config_dir: "{{ config_dir_prefix }}/{{ postgres_container_name }}"
+postgres_container_name: postgres
+postgres_db_name: postgres
+postgres_db_user: postgres
+postgres_external_ip: 127.0.0.1
+postgres_internal_ip: "{{ podman_network_gateway | ansible.netcommon.ipmath(+4) }}"
+postgres_port: "5432"

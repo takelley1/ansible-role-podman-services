@@ -1,0 +1,25 @@
+---
+
+- name: MAIN | Import setup tasks.
+  import_tasks: setup.yml
+  when: podman_include_setup_tasks
+
+- name: MAIN | Import Heimdall tasks.
+  import_tasks: heimdall.yml
+  when: podman_deploy_heimdall
+
+- name: MAIN | Import PostgreSQL tasks.
+  import_tasks: postgres.yml
+  when: podman_deploy_postgres
+
+- name: MAIN | Import Mosquitto tasks.
+  import_tasks: mosquitto.yml
+  when: podman_deploy_mosquitto
+
+- name: MAIN | Import Home Assistant tasks.
+  import_tasks: home_assistant.yml
+  when: podman_deploy_home_assistant
+
+- name: MAIN | Import HAProxy tasks.
+  import_tasks: haproxy.yml
+  when: podman_deploy_haproxy

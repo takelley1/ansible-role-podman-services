@@ -1,0 +1,41 @@
+---
+
+#
+# This container is intended to be used with Home Assistant.
+#
+
+- name: POSTGRES | Port whitelisted.
+  community.general.ufw:
+    proto: tcp
+    rule: allow
+    to_port: "{{ postgres_port }}"
+
+- name: POSTGRES | Config directory created.
+  ansible.builtin.file:
+    path: "{{ postgres_config_dir }}/data_bind_mount"
+    state: directory
+    mode: "0750"
+
+- name: POSTGRES | Environment file created.
+  ansible.builtin.copy:
+    dest: "{{ postgres_config_dir }}/postgres.env"
+    content: "# Postgres environment variables"
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0640"
+
+- name: POSTGRES | Container running.
+  containers.podman.podman_container:
+    name: postgres
+    image: postgres:latest
+    env_file: "{{ postgres_config_dir }}/postgres.env"
+    env:
+      POSTGRES_PASSWORD: "{{ postgres_db_password }}"
+      POSTGRES_USER: "{{ postgres_db_user }}"
+      POSTGRES_DB: "{{ postgres_db_name }}"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "{{ postgres_port }}:{{ postgres_port }}"
+    ip: "{{ postgres_internal_ip }}"
+    volumes:
+      - "{{ postgres_config_dir }}/data_bind_mount:/var/lib/postgresql/data/pgdata"

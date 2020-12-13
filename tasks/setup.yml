@@ -1,0 +1,34 @@
+---
+
+- name: SETUP | Podman user created.
+  ansible.builtin.user:
+    name: "{{ podman_user }}"
+
+- name: SETUP | Podman installed.
+  ansible.builtin.dnf:
+    name:
+      - podman
+      - python-podman-api
+
+- name: SETUP | SELinux configured.
+  block:
+    - name: SETUP | Check for rule
+      shell: semodule -l | grep -q permissive_container_t
+      register: check
+      changed_when: false
+
+    - name: SETUP | Add rule
+      shell: semanage permissive -a container_t
+      when: check.rc == 1
+
+- name: SETUP | HAProxy ports whitelisted.
+  firewalld:
+    port: "{{ item }}"
+    zone: "{{ firewalld_zone }}"
+    immediate: true
+    permanent: true
+    state: enabled
+  loop:
+    - "{{ haproxy_port }}/tcp"
+    - "{{ haproxy_stats_port }}/tcp"
+  when: deploy_haproxy

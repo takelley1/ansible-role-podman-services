@@ -1,0 +1,25 @@
+---
+
+- name: HEIMDALL | Config directory created.
+  ansible.builtin.file:
+    path: "{{ heimdall_config_dir }}/config_bind_mount"
+    state: directory
+    mode: "0750"
+
+- name: HEIMDALL | Environment file created.
+  ansible.builtin.copy:
+    dest: "{{ heimdall_config_dir }}/heimdall.env"
+    content: "# Heimdall environment variables"
+    mode: "0640"
+
+- name: HEIMDALL | Container running.
+  containers.podman.podman_container:
+    name: "{{ heimdall_container_name }}"
+    image: linuxserver/heimdall:latest
+    env_file: "{{ heimdall_config_dir }}/heimdall.env"
+    restart_policy: on-failure:5
+    env:
+      TZ: "{{ timezone }}"
+    ip: "{{ heimdall_internal_ip }}"
+    volumes:
+      - "{{ heimdall_config_dir }}/config_bind_mount:/config"

@@ -1,0 +1,62 @@
+---
+
+- name: HOME_ASSISTANT | Config directory created.
+  ansible.builtin.file:
+    path: "{{ home_assistant_config_dir }}/config_bind_mount"
+    state: directory
+    owner: "{{ podman_user }}"
+    group: "{{ podman_user }}"
+    mode: "0750"
+
+- name: HOME_ASSISTANT | Environment file created.
+  ansible.builtin.copy:
+    dest: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
+    content: "# Home Assistant environment variables"
+    owner: "{{ podman_user }}"
+    group: "{{ podman_user }}"
+    mode: "0640"
+
+- name: HOME_ASSISTANT | Proxy config added.
+  ansible.builtin.copy:
+    dest: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
+    content: |
+      HTTP_PROXY={{ proxy_url }}
+      HTTPS_PROXY={{ proxy_url }}
+  when: use_proxy
+
+- name: HOME_ASSISTANT | Container running.
+  containers.podman.podman_container:
+    name: "{{ home_assistant_container_name }}"
+    image: homeassistant/home-assistant:stable
+    env_file: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
+    restart_policy: on-failure:5
+    env:
+      TZ: "{{ timezone }}"
+    publish:
+      - "{{ home_assistant_port }}:{{ home_assistant_port }}"
+    network: host
+    volumes:
+      - "{{ home_assistant_config_dir }}/config_bind_mount:/config"
+      - /etc/localtime:/etc/localtime:ro
+
+# On first startup, wait for the container to create its default config
+#   files.
+- name: HOME_ASSISTANT | Initial config dir created.
+  ansible.builtin.wait_for:
+    path: "{{ home_assistant_config_dir }}/config_bind_mount/deps"
+
+# Deploy the user's custom config files to overwrite the defaults.
+- name: HOME_ASSISTANT | Configuration templates deployed.
+  ansible.builtin.template:
+    src: home_assistant/{{ item }}.j2
+    dest: "{{ home_assistant_config_dir }}/config_bind_mount/{{ item }}"
+    mode: "0641"
+  loop:
+    - configuration.yaml
+  register: configfiles
+
+- name: HOME_ASSISTANT | Container restarted.
+  containers.podman.podman_container:
+    name: home_assistant
+    restart: true
+  when: configfiles.changed
