@@ -47,7 +47,7 @@
 
     - name: HAPROXY | Set fact for container ID.
       set_fact:
-        heimdall_id: "{{ container_info.containers[0].Id }}"
+        haproxy_id: "{{ container_info.containers[0].Id }}"
 
     - name: HAPROXY | Systemd unit file deployed.
       template:

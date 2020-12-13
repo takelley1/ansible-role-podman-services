@@ -58,7 +58,7 @@
 
     - name: POSTGRES | Set fact for container ID.
       set_fact:
-        heimdall_id: "{{ container_info.containers[0].Id }}"
+        postgres_id: "{{ container_info.containers[0].Id }}"
 
     - name: POSTGRES | Systemd unit file deployed.
       template:

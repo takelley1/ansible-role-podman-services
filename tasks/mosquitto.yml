@@ -125,7 +125,7 @@
 
     - name: MOSQUITTO | Set fact for container ID.
       set_fact:
-        heimdall_id: "{{ container_info.containers[0].Id }}"
+        mosquitto_id: "{{ container_info.containers[0].Id }}"
 
     - name: MOSQUITTO | Systemd unit file deployed.
       template:

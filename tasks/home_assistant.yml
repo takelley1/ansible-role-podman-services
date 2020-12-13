@@ -82,7 +82,7 @@
 
     - name: HOME_ASSISTANT | Set fact for container ID.
       set_fact:
-        heimdall_id: "{{ container_info.containers[0].Id }}"
+        home_assistant_id: "{{ container_info.containers[0].Id }}"
 
     - name: HOME_ASSISTANT | Systemd unit file deployed.
       template:
