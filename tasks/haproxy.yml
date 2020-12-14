@@ -1,5 +1,27 @@
 ---
 
+- name: HAPROXY | HAProxy allowed in ufw.
+  community.general.ufw:
+    proto: tcp
+    rule: allow
+    to_port: "{{ item }}"
+  loop:
+    - "{{ haproxy_port }}"
+    - "{{ haproxy_stats_port }}"
+  when: ansible_facts.os_family == "Debian"
+
+- name: HAPROXY | HAProxy allowed in firewalld.
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    zone: "{{ firewalld_zone }}"
+    immediate: true
+    permanent: true
+    state: enabled
+  loop:
+    - "{{ haproxy_port }}/tcp"
+    - "{{ haproxy_stats_port }}/tcp"
+  when: ansible_facts.os_family == "RedHat"
+
 - name: HAPROXY | Config directory created.
   ansible.builtin.file:
     path: "{{ haproxy_config_dir }}/config_bind_mount"

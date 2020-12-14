@@ -1,22 +1,20 @@
 ---
 
-#
-# This container is intended to be used with Home Assistant.
-#
+- name: MOSQUITTO | MQTT allowed in ufw.
+  community.general.ufw:
+    proto: tcp
+    rule: allow
+    to_port: "{{ mosquitto_port }}"
+  when: ansible_facts.os_family == "Debian"
 
-# - name: MOSQUITTO | Port whitelisted.
-#   community.general.ufw:
-#     proto: tcp
-#     rule: allow
-#     to_port: "{{ mosquitto_port }}"
-
-- name: MOSQUITTO | Port allowed.
-  firewalld:
+- name: MOSQUITTO | MQTT allowed in firewalld.
+  ansible.posix.firewalld:
     port: "{{ mosquitto_port }}/tcp"
     zone: "{{ firewalld_zone }}"
     immediate: true
     permanent: true
     state: enabled
+  when: ansible_facts.os_family == "RedHat"
 
 # Don't use "owner" or "group" keys here since mosquitto chowns these
 #   dirs to the container's local user upon starting the container.
@@ -95,7 +93,9 @@
       - /etc/localtime:/etc/localtime:ro
 
 - name: MOSQUITTO | Password hashed.
-  shell: podman exec "{{ mosquitto_container_name }}" /usr/bin/mosquitto_passwd -U /mosquitto/config/mosquitto.password
+  shell: >
+    podman exec "{{ mosquitto_container_name }}" /usr/bin/mosquitto_passwd
+    -U /mosquitto/config/mosquitto.password
   changed_when: false
   when: mosquitto_use_password
 

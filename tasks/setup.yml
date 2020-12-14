@@ -1,5 +1,17 @@
 ---
 
+- name: SETUP | Ufw running.
+  service:
+    name: ufw
+    state: started
+  when: ansible_facts.os_family == "Debian"
+
+- name: SETUP | Firewalld running.
+  service:
+    name: firewalld
+    state: started
+  when: ansible_facts.os_family == "RedHat"
+
 - name: SETUP | Podman user created.
   ansible.builtin.user:
     name: "{{ podman_user }}"
@@ -29,7 +41,7 @@
         update_cache: true
         name:
           - podman
-          - podman-rootless
+          - python-podman-api
   when: ansible_facts.os_family == "Debian"
 
 - name: SETUP | Podman installed (RedHat).
@@ -50,15 +62,3 @@
       shell: semanage permissive -a container_t
       when: check.rc != 0
   when: ansible_facts.os_family == "RedHat"
-
-- name: SETUP | HAProxy ports allowed.
-  firewalld:
-    port: "{{ item }}"
-    zone: "{{ firewalld_zone }}"
-    immediate: true
-    permanent: true
-    state: enabled
-  loop:
-    - "{{ haproxy_port }}/tcp"
-    - "{{ haproxy_stats_port }}/tcp"
-  when: deploy_haproxy
