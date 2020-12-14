@@ -1,8 +1,0 @@
----
-
-podman_include_setup_tasks: true
-
-podman_user: root
-
-firewalld_zone: public
-podman_network_gateway: 10.88.0.1

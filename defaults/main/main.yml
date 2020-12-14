@@ -4,3 +4,8 @@ config_dir_prefix: /containers
 podman_user: root
 
 timezone: America/New_York
+
+podman_include_setup_tasks: true
+
+firewalld_zone: public
+podman_network_gateway: 10.88.0.1
