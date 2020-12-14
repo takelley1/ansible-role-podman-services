@@ -4,11 +4,40 @@
   ansible.builtin.user:
     name: "{{ podman_user }}"
 
-- name: SETUP | Podman installed.
+- name: SETUP | Podman installed (Debian).
+  block:
+    - name: SETUP | Get release.
+      shell: lsb_release -rs
+      changed_when: false
+      register: release
+
+    - name: SETUP | Repo GPG key present.
+      ansible.builtin.apt_key:
+        url: >
+          https://download.opensuse.org/repositories/devel:/kubic:/
+          libcontainers:/stable/xUbuntu_{{ release.stdout }}/Release.key
+
+    - name: SETUP | Repo present.
+      ansible.builtin.apt_repository:
+        filename: podman-stable
+        repo: >
+          deb https://download.opensuse.org/repositories/devel:/kubic:/
+          libcontainers:/stable/xUbuntu_{{ release.stdout }} /
+
+    - name: SETUP | Podman installed.
+      ansible.builtin.apt:
+        update_cache: true
+        name:
+          - podman
+          - podman-rootless
+  when: ansible_facts.os_family == "Debian"
+
+- name: SETUP | Podman installed (RedHat).
   ansible.builtin.dnf:
     name:
       - podman
       - python-podman-api
+  when: ansible_facts.os_family == "RedHat"
 
 - name: SETUP | SELinux configured.
   block:
@@ -20,6 +49,7 @@
     - name: SETUP | Add rule
       shell: semanage permissive -a container_t
       when: check.rc != 0
+  when: ansible_facts.os_family == "RedHat"
 
 - name: SETUP | HAProxy ports allowed.
   firewalld:
