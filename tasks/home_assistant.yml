@@ -40,8 +40,8 @@
       - "{{ home_assistant_config_dir }}/config_bind_mount:/config"
       - /etc/localtime:/etc/localtime:ro
 
-# On first startup, wait for the container to create its default config
-#   files.
+# On first startup, we must wait for the container to create its default
+#   config files before we can deploy our own.
 - name: HOME_ASSISTANT | Initial config dir created.
   ansible.builtin.wait_for:
     path: "{{ home_assistant_config_dir }}/config_bind_mount/deps"
