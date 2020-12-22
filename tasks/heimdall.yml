@@ -7,10 +7,11 @@
     mode: "0750"
 
 - name: HEIMDALL | Environment file created.
-  ansible.builtin.copy:
-    dest: "{{ heimdall_config_dir }}/heimdall.env"
-    content: "# Heimdall environment variables"
+  ansible.builtin.file:
+    path: "{{ heimdall_config_dir }}/heimdall.env"
     mode: "0640"
+    state: touch
+  changed_when: false
 
 - name: HEIMDALL | Container running.
   containers.podman.podman_container:

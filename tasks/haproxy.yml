@@ -31,10 +31,11 @@
     mode: "0750"
 
 - name: HAPROXY | Environment file created.
-  ansible.builtin.copy:
-    dest: "{{ haproxy_config_dir }}/haproxy.env"
-    content: "# HAProxy environment variables"
+  ansible.builtin.file:
+    path: "{{ haproxy_config_dir }}/haproxy.env"
     mode: "0640"
+    state: touch
+  changed_when: false
 
 - name: HAPROXY | Certificate imported.
   ansible.builtin.copy:

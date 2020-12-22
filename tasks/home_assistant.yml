@@ -9,12 +9,13 @@
     mode: "0750"
 
 - name: HOME_ASSISTANT | Environment file created.
-  ansible.builtin.copy:
-    dest: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
-    content: "# Home Assistant environment variables"
+  ansible.builtin.file:
+    path: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
     owner: "{{ podman_user }}"
     group: "{{ podman_user }}"
     mode: "0640"
+    state: touch
+  changed_when: false
 
 - name: HOME_ASSISTANT | Proxy config added.
   ansible.builtin.copy:

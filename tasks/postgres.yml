@@ -23,12 +23,13 @@
     mode: "0750"
 
 - name: POSTGRES | Environment file created.
-  ansible.builtin.copy:
+  ansible.builtin.file:
     dest: "{{ postgres_config_dir }}/postgres.env"
-    content: "# Postgres environment variables"
     owner: "{{ podman_user }}"
     group: "{{ podman_user }}"
     mode: "0640"
+    state: touch
+  changed_when: false
 
 - name: POSTGRES | Container running.
   containers.podman.podman_container:

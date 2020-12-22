@@ -29,12 +29,13 @@
     - log_bind_mount
 
 - name: MOSQUITTO | Environment file created.
-  ansible.builtin.copy:
-    dest: "{{ mosquitto_config_dir }}/mosquitto.env"
-    content: "# Mosquitto environment variables"
+  ansible.builtin.file:
+    path: "{{ mosquitto_config_dir }}/mosquitto.env"
     owner: "{{ podman_user }}"
     group: "{{ podman_user }}"
     mode: "0640"
+    state: touch
+  changed_when: false
 
 - name: MOSQUITTO | Proxy config added.
   ansible.builtin.copy:
