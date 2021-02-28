@@ -1,6 +1,6 @@
 ---
 
-- name: HOME_ASSISTANT | Config directory created.
+- name: HOME_ASSISTANT | Config directory created
   ansible.builtin.file:
     path: "{{ home_assistant_config_dir }}/config_bind_mount"
     state: directory
@@ -8,7 +8,7 @@
     group: "{{ podman_user }}"
     mode: "0750"
 
-- name: HOME_ASSISTANT | Environment file created.
+- name: HOME_ASSISTANT | Environment file created
   ansible.builtin.file:
     path: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
     owner: "{{ podman_user }}"
@@ -17,7 +17,7 @@
     state: touch
   changed_when: false
 
-- name: HOME_ASSISTANT | Proxy config added.
+- name: HOME_ASSISTANT | Proxy config added
   ansible.builtin.copy:
     dest: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
     content: |
@@ -25,7 +25,7 @@
       HTTPS_PROXY={{ proxy_url }}
   when: use_proxy
 
-- name: HOME_ASSISTANT | Container running.
+- name: HOME_ASSISTANT | Container running
   containers.podman.podman_container:
     name: "{{ home_assistant_container_name }}"
     image: homeassistant/home-assistant:stable
@@ -43,12 +43,12 @@
 
 # On first startup, we must wait for the container to create its default
 #   config files before we can deploy our own.
-- name: HOME_ASSISTANT | Initial config dir created.
+- name: HOME_ASSISTANT | Initial config dir created
   ansible.builtin.wait_for:
     path: "{{ home_assistant_config_dir }}/config_bind_mount/deps"
 
 # Deploy the user's custom config files to overwrite the defaults.
-- name: HOME_ASSISTANT | Configuration templates deployed.
+- name: HOME_ASSISTANT | Configuration templates deployed
   ansible.builtin.template:
     src: home_assistant/{{ item }}.j2
     dest: "{{ home_assistant_config_dir }}/config_bind_mount/{{ item }}"
@@ -57,7 +57,7 @@
     - configuration.yaml
   register: configfiles
 
-- name: HOME_ASSISTANT | Container restarted.
+- name: HOME_ASSISTANT | Container restarted
   containers.podman.podman_container:
     name: "{{ home_assistant_container_name }}"
     image: homeassistant/home-assistant:stable
@@ -74,18 +74,18 @@
       - /etc/localtime:/etc/localtime:ro
   when: configfiles.changed
 
-- name: HOME_ASSISTANT | Systemd config deployed.
+- name: HOME_ASSISTANT | Systemd config deployed
   block:
-    - name: HOME_ASSISTANT | Get container ID.
+    - name: HOME_ASSISTANT | Get container ID
       containers.podman.podman_container_info:
         name: home-assistant
       register: container_info
 
-    - name: HOME_ASSISTANT | Set fact for container ID.
+    - name: HOME_ASSISTANT | Set fact for container ID
       set_fact:
         home_assistant_id: "{{ container_info.containers[0].Id }}"
 
-    - name: HOME_ASSISTANT | Systemd unit file deployed.
+    - name: HOME_ASSISTANT | Systemd unit file deployed
       template:
         src: home_assistant/systemd/home_assistant-podman.service.j2
         dest: /etc/systemd/system/home_assistant-podman.service
@@ -96,7 +96,7 @@
         owner: root
         group: root
 
-    - name: HOME_ASSISTANT | Systemd service enabled.
+    - name: HOME_ASSISTANT | Systemd service enabled
       systemd:
         name: home_assistant-podman.service
         enabled: true

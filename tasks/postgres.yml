@@ -1,13 +1,13 @@
 ---
 
-- name: POSTGRES | Postgres allowed in ufw.
+- name: POSTGRES | Postgres allowed in ufw
   community.general.ufw:
     proto: tcp
     rule: allow
     to_port: "{{ postgres_port }}"
   when: ansible_facts.os_family == "Debian"
 
-- name: POSTGRES | Postgres allowed in firewalld.
+- name: POSTGRES | Postgres allowed in firewalld
   ansible.posix.firewalld:
     port: "{{ postgres_port }}/tcp"
     zone: "{{ firewalld_zone }}"
@@ -16,13 +16,13 @@
     state: enabled
   when: ansible_facts.os_family == "RedHat"
 
-- name: POSTGRES | Config directory created.
+- name: POSTGRES | Config directory created
   ansible.builtin.file:
     path: "{{ postgres_config_dir }}/data_bind_mount"
     state: directory
     mode: "0750"
 
-- name: POSTGRES | Environment file created.
+- name: POSTGRES | Environment file created
   ansible.builtin.file:
     dest: "{{ postgres_config_dir }}/postgres.env"
     owner: "{{ podman_user }}"
@@ -31,7 +31,7 @@
     state: touch
   changed_when: false
 
-- name: POSTGRES | Container running.
+- name: POSTGRES | Container running
   containers.podman.podman_container:
     name: postgres
     image: postgres:latest
@@ -48,18 +48,18 @@
     volumes:
       - "{{ postgres_config_dir }}/data_bind_mount:/var/lib/postgresql/data/pgdata"
 
-- name: POSTGRES | Systemd config deployed.
+- name: POSTGRES | Systemd config deployed
   block:
-    - name: POSTGRES | Get container ID.
+    - name: POSTGRES | Get container ID
       containers.podman.podman_container_info:
         name: postgres
       register: container_info
 
-    - name: POSTGRES | Set fact for container ID.
+    - name: POSTGRES | Set fact for container ID
       set_fact:
         postgres_id: "{{ container_info.containers[0].Id }}"
 
-    - name: POSTGRES | Systemd unit file deployed.
+    - name: POSTGRES | Systemd unit file deployed
       template:
         src: postgres/systemd/postgres-podman.service.j2
         dest: /etc/systemd/system/postgres-podman.service
@@ -70,7 +70,7 @@
         owner: root
         group: root
 
-    - name: POSTGRES | Systemd service enabled.
+    - name: POSTGRES | Systemd service enabled
       systemd:
         name: postgres-podman.service
         enabled: true

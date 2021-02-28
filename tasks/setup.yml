@@ -1,6 +1,6 @@
 ---
 
-- name: SETUP | Ufw enabled and running.
+- name: SETUP | Ufw enabled and running
   systemd:
     name: ufw
     state: started
@@ -8,7 +8,7 @@
     masked: false
   when: ansible_facts.os_family == "Debian"
 
-- name: SETUP | Firewalld enabled and running.
+- name: SETUP | Firewalld enabled and running
   systemd:
     name: firewalld
     state: started
@@ -16,31 +16,31 @@
     masked: false
   when: ansible_facts.os_family == "RedHat"
 
-- name: SETUP | Podman user exists.
+- name: SETUP | Podman user exists
   ansible.builtin.user:
     name: "{{ podman_user }}"
 
-- name: SETUP | Podman installed (Debian).
+- name: SETUP | Podman installed (Debian)
   block:
-    - name: SETUP | Get release.
+    - name: SETUP | Get release
       shell: lsb_release -rs
       changed_when: false
       register: release
 
-    - name: SETUP | Repo GPG key present.
+    - name: SETUP | Repo GPG key present
       ansible.builtin.apt_key:
         url: >
           https://download.opensuse.org/repositories/devel:/kubic:/
           libcontainers:/stable/xUbuntu_{{ release.stdout }}/Release.key
 
-    - name: SETUP | Repo present.
+    - name: SETUP | Repo present
       ansible.builtin.apt_repository:
         filename: podman-stable
         repo: >
           deb https://download.opensuse.org/repositories/devel:/kubic:/
           libcontainers:/stable/xUbuntu_{{ release.stdout }} /
 
-    - name: SETUP | Podman installed.
+    - name: SETUP | Podman installed
       ansible.builtin.apt:
         update_cache: true
         name:
@@ -48,14 +48,14 @@
           - python-podman-api
   when: ansible_facts.os_family == "Debian"
 
-- name: SETUP | Podman installed (RedHat).
+- name: SETUP | Podman installed (RedHat)
   ansible.builtin.dnf:
     name:
       - podman
       - python-podman-api
   when: ansible_facts.os_family == "RedHat"
 
-- name: SETUP | SELinux configured.
+- name: SETUP | SELinux configured
   block:
     - name: SETUP | Check for rule
       shell: semodule -l | grep -q permissive_container_t

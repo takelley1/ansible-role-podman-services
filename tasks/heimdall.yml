@@ -1,19 +1,19 @@
 ---
 
-- name: HEIMDALL | Config directory created.
+- name: HEIMDALL | Config directory created
   ansible.builtin.file:
     path: "{{ heimdall_config_dir }}/config_bind_mount"
     state: directory
     mode: "0750"
 
-- name: HEIMDALL | Environment file created.
+- name: HEIMDALL | Environment file created
   ansible.builtin.file:
     path: "{{ heimdall_config_dir }}/heimdall.env"
     mode: "0640"
     state: touch
   changed_when: false
 
-- name: HEIMDALL | Container running.
+- name: HEIMDALL | Container running
   containers.podman.podman_container:
     name: "{{ heimdall_container_name }}"
     image: linuxserver/heimdall:latest
@@ -26,18 +26,18 @@
     volumes:
       - "{{ heimdall_config_dir }}/config_bind_mount:/config"
 
-- name: HEIMDALL | Systemd config deployed.
+- name: HEIMDALL | Systemd config deployed
   block:
-    - name: HEIMDALL | Get container ID.
+    - name: HEIMDALL | Get container ID
       containers.podman.podman_container_info:
         name: heimdall
       register: container_info
 
-    - name: HEIMDALL | Set fact for container ID.
+    - name: HEIMDALL | Set fact for container ID
       set_fact:
         heimdall_id: "{{ container_info.containers[0].Id }}"
 
-    - name: HEIMDALL | Systemd unit file deployed.
+    - name: HEIMDALL | Systemd unit file deployed
       template:
         src: heimdall/systemd/heimdall-podman.service.j2
         dest: /etc/systemd/system/heimdall-podman.service
@@ -48,7 +48,7 @@
         owner: root
         group: root
 
-    - name: HEIMDALL | Systemd service enabled.
+    - name: HEIMDALL | Systemd service enabled
       systemd:
         name: heimdall-podman.service
         enabled: true

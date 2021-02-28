@@ -1,13 +1,13 @@
 ---
 
-- name: MOSQUITTO | MQTT allowed in ufw.
+- name: MOSQUITTO | MQTT allowed in ufw
   community.general.ufw:
     proto: tcp
     rule: allow
     to_port: "{{ mosquitto_port }}"
   when: ansible_facts.os_family == "Debian"
 
-- name: MOSQUITTO | MQTT allowed in firewalld.
+- name: MOSQUITTO | MQTT allowed in firewalld
   ansible.posix.firewalld:
     port: "{{ mosquitto_port }}/tcp"
     zone: "{{ firewalld_zone }}"
@@ -18,7 +18,7 @@
 
 # Don't use "owner" or "group" keys here since mosquitto chowns these
 #   dirs to the container's local user upon starting the container.
-- name: MOSQUITTO | Config directories created.
+- name: MOSQUITTO | Config directories created
   ansible.builtin.file:
     path: "{{ mosquitto_config_dir }}/{{ item }}"
     state: directory
@@ -28,7 +28,7 @@
     - data_bind_mount
     - log_bind_mount
 
-- name: MOSQUITTO | Environment file created.
+- name: MOSQUITTO | Environment file created
   ansible.builtin.file:
     path: "{{ mosquitto_config_dir }}/mosquitto.env"
     owner: "{{ podman_user }}"
@@ -37,7 +37,7 @@
     state: touch
   changed_when: false
 
-- name: MOSQUITTO | Proxy config added.
+- name: MOSQUITTO | Proxy config added
   ansible.builtin.copy:
     dest: "{{ mosquitto_config_dir }}/mosquitto.env"
     content: |
@@ -45,7 +45,7 @@
       HTTPS_PROXY={{ proxy_url }}
   when: use_proxy
 
-- name: MOSQUITTO | Configuration files deployed.
+- name: MOSQUITTO | Configuration files deployed
   ansible.builtin.template:
     src: mosquitto/{{ item.src }}.j2
     dest: "{{ item.dest }}"
@@ -57,7 +57,7 @@
       dest: /etc/logrotate.d/mosquitto
   register: configfiles
 
-- name: MOSQUITTO | Password file deployed.
+- name: MOSQUITTO | Password file deployed
   ansible.builtin.template:
     src: mosquitto/mosquitto.password.j2
     dest: "{{ mosquitto_config_dir }}/config_bind_mount/mosquitto.password"
@@ -65,7 +65,7 @@
   changed_when: false
   when: mosquitto_use_password
 
-# - name: MOSQUITTO | Certificates deployed.
+# - name: MOSQUITTO | Certificates deployed
 #   ansible.builtin.copy:
 #     src: mosquitto/{{ item }}
 #     dest: "{{ mosquitto_config_dir }}/config_bind_mount/{{ item }}"
@@ -77,7 +77,7 @@
 #   when: mosquitto_use_ssl
 #   register: certfiles
 
-- name: MOSQUITTO | Container running.
+- name: MOSQUITTO | Container running
   containers.podman.podman_container:
     name: "{{ mosquitto_container_name }}"
     image: eclipse-mosquitto:latest
@@ -93,14 +93,14 @@
       - "{{ mosquitto_config_dir }}/log_bind_mount:/mosquitto/log"
       - /etc/localtime:/etc/localtime:ro
 
-- name: MOSQUITTO | Password hashed.
+- name: MOSQUITTO | Password hashed
   shell: >
     podman exec "{{ mosquitto_container_name }}" /usr/bin/mosquitto_passwd
     -U /mosquitto/config/mosquitto.password
   changed_when: false
   when: mosquitto_use_password
 
-- name: MOSQUITTO | Container restarted.
+- name: MOSQUITTO | Container restarted
   containers.podman.podman_container:
     name: "{{ mosquitto_container_name }}"
     image: eclipse-mosquitto:latest
@@ -117,18 +117,18 @@
       - /etc/localtime:/etc/localtime:ro
   when: mosquitto_use_password or certfiles.changed or configfiles.changed
 
-- name: MOSQUITTO | Systemd config deployed.
+- name: MOSQUITTO | Systemd config deployed
   block:
-    - name: MOSQUITTO | Get container ID.
+    - name: MOSQUITTO | Get container ID
       containers.podman.podman_container_info:
         name: eclipse-mosquitto
       register: container_info
 
-    - name: MOSQUITTO | Set fact for container ID.
+    - name: MOSQUITTO | Set fact for container ID
       set_fact:
         mosquitto_id: "{{ container_info.containers[0].Id }}"
 
-    - name: MOSQUITTO | Systemd unit file deployed.
+    - name: MOSQUITTO | Systemd unit file deployed
       template:
         src: mosquitto/systemd/mosquitto-podman.service.j2
         dest: /etc/systemd/system/mosquitto-podman.service
@@ -139,7 +139,7 @@
         owner: root
         group: root
 
-    - name: MOSQUITTO | Systemd service enabled.
+    - name: MOSQUITTO | Systemd service enabled
       systemd:
         name: mosquitto-podman.service
         enabled: true
