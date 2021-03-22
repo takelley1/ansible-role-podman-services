@@ -2,7 +2,7 @@
 
 podman_deploy_mosquitto: true
 
-#mosquitto_password:
+# mosquitto_password:
 
 mosquitto_internal_ip: "{{ podman_network_gateway | ansible.netcommon.ipmath(+3) }}"
 mosquitto_config_dir: "{{ config_dir_prefix }}/{{ mosquitto_container_name }}"

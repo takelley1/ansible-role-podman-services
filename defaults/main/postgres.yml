@@ -2,7 +2,7 @@
 
 podman_deploy_postgres: true
 
-#postgres_db_password:
+# postgres_db_password:
 
 postgres_config_dir: "{{ config_dir_prefix }}/{{ postgres_container_name }}"
 postgres_container_name: postgres
