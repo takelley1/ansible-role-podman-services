@@ -1,0 +1,17 @@
+{{ ansible_managed | comment }}
+# container-{{ pihole_id }}.service
+
+[Unit]
+Description=Podman container-{{ pihole_id }}
+Documentation=man:podman-generate-systemd(1)
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/podman start {{ pihole_id }}
+ExecStop=/usr/bin/podman stop -t 10 {{ pihole_id }}
+KillMode=none
+Type=forking
+PIDFile=/var/run/containers/storage/overlay-containers/{{ pihole_id }}/userdata/conmon.pid
+
+[Install]
+WantedBy=multi-user.target

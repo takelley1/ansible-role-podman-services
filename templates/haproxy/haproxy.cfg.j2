@@ -67,6 +67,10 @@ frontend f_https
     use_backend b_home_assistant if home_assistant
     {% endif %}
 
+    {% if deploy_pihole %}
+    use_backend b_pihole if pihole
+    {% endif %}
+
     {% if deploy_heimdall %}
     default_backend b_heimdall
     {% endif %}
@@ -84,4 +88,10 @@ backend b_heimdall
 backend b_home_assistant
     option httpchk GET /
     server s1_{{ home_assistant_container_name }} {{ ansible_host }}:{{ home_assistant_port }} check
+{% endif %}
+
+{% if deploy_pihole %}
+backend b_pihole
+    option httpchk GET /
+    server s1_{{ pihole_container_name }} {{ ansible_host }}:{{ pihole_port }} check
 {% endif %}
