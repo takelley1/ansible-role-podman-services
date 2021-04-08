@@ -60,14 +60,14 @@
 - name: HOME_ASSISTANT | Custom user config added to template
   ansible.builtin.blockinfile:
     path: "{{ home_assistant_config_dir }}/config_bind_mount/configuration.yaml"
-    block: "{{ lookup('file', 'home_assistant_custom_config') }}"
+    block: "{{ lookup('file', home_assistant_custom_config) }}"
   when: home_assistant_custom_config is defined
 
 - name: HOME_ASSISTANT | Container restarted
   containers.podman.podman_container:
     name: "{{ home_assistant_container_name }}"
     image: homeassistant/home-assistant:stable
-    state: force_restart
+    force_restart: true
     env_file: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
     restart_policy: on-failure:5
     env:
