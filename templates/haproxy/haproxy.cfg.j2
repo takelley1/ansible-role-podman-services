@@ -1,0 +1,87 @@
+{{ ansible_managed | comment }}
+# /etc/opt/rh/rh-haproxy18/haproxy/haproxy.cfg
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    # Log to stdout since we're in a container.
+    log       stdout format raw local0
+    pidfile   /var/run/haproxy.pid
+    maxconn   1000
+    user      root
+    group     root
+    daemon
+
+    # Turn on status unix socket.
+    #stats socket /var/opt/rh/rh-haproxy18/lib/haproxy/stats
+
+#---------------------------------------------------------------------
+# Common defaults that all the 'listen' and 'backend' sections will
+#   use if not designated in their block.
+#---------------------------------------------------------------------
+defaults
+    mode       http
+    log        global
+    balance    roundrobin
+    option     httpchk HEAD /
+    option     dontlognull
+    option     http-server-close
+    option     forwardfor except 127.0.0.0/8
+    option     redispatch
+    retries    3
+    timeout    http-request    10s
+    timeout    queue           1m
+    timeout    connect         10s
+    timeout    client          1m
+    timeout    server          1m
+    timeout    http-keep-alive 10s
+    timeout    check           10s
+    maxconn    1000
+
+#---------------------------------------------------------------------
+# Frontend configuration
+#---------------------------------------------------------------------
+
+{% if haproxy_enable_stats %}
+frontend f_stats
+    bind *:{{ haproxy_stats_port }}
+    stats enable
+    stats uri /
+    stats refresh {{ haproxy_stats_refresh_interval }}
+{% endif %}
+
+frontend f_http
+    bind *:{{ haproxy_http_port }}
+    {% if haproxy_force_https %}
+    http-request redirect scheme https code 301 if !{ ssl_fc }
+    {% endif %}
+
+frontend f_https
+    bind *:{{ haproxy_https_port }} ssl crt /usr/local/etc/haproxy/{{ haproxy_cert_filename }}
+
+    {% if deploy_home_assistant %}
+    acl home_assistant hdr_dom(host) -i homeassistant.{{ haproxy_subdomain }}.{{ domain }}
+    {% endif %}
+
+    {% if deploy_home_assistant %}
+    use_backend b_home_assistant if home_assistant
+    {% endif %}
+
+    {% if deploy_heimdall %}
+    default_backend b_heimdall
+    {% endif %}
+
+#---------------------------------------------------------------------
+# Backend configuration
+#---------------------------------------------------------------------
+
+{% if deploy_heimdall %}
+backend b_heimdall
+    server s1_{{ heimdall_container_name }} {{ heimdall_internal_ip }}:{{ heimdall_port }} check ssl verify none
+{% endif %}
+
+{% if deploy_home_assistant %}
+backend b_home_assistant
+    option httpchk GET /
+    server s1_{{ home_assistant_container_name }} {{ ansible_host }}:{{ home_assistant_port }} check
+{% endif %}
