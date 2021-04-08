@@ -30,22 +30,19 @@
     - name: SETUP | Repo GPG key present
       ansible.builtin.apt_key:
         url: >
-          https://download.opensuse.org/repositories/devel:/kubic:/
-          libcontainers:/stable/xUbuntu_{{ release.stdout }}/Release.key
+          https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ release.stdout }}/Release.key
 
     - name: SETUP | Repo present
       ansible.builtin.apt_repository:
         filename: podman-stable
         repo: >
-          deb https://download.opensuse.org/repositories/devel:/kubic:/
-          libcontainers:/stable/xUbuntu_{{ release.stdout }} /
+          deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ release.stdout }} /
 
     - name: SETUP | Podman installed
       ansible.builtin.apt:
         update_cache: true
         name:
           - podman
-          - python-podman-api
   when: ansible_facts.os_family == "Debian"
 
 - name: SETUP | Podman installed (RedHat)
