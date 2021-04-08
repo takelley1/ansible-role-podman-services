@@ -34,8 +34,8 @@
   ansible.builtin.copy:
     dest: "{{ mosquitto_config_dir }}/mosquitto.env"
     content: "# Mosquitto environment variables"
-    owner: "{{ docker_user }}"
-    group: "{{ docker_user }}"
+    owner: "{{ podman_user }}"
+    group: "{{ podman_user }}"
     mode: "0640"
 
 - name: MOSQUITTO | Proxy config added.
@@ -66,27 +66,28 @@
   changed_when: false
   when: mosquitto_use_password
 
-- name: MOSQUITTO | Certificates deployed.
-  ansible.builtin.copy:
-    src: mosquitto/{{ item }}
-    dest: "{{ mosquitto_config_dir }}/config_bind_mount/{{ item }}"
-    mode: "0640"
-  loop:
-    - ca.crt
-    - server.crt
-    - server.key
-  when: mosquitto_use_ssl
-  register: certfiles
+# - name: MOSQUITTO | Certificates deployed.
+#   ansible.builtin.copy:
+#     src: mosquitto/{{ item }}
+#     dest: "{{ mosquitto_config_dir }}/config_bind_mount/{{ item }}"
+#     mode: "0640"
+#   loop:
+#     - ca.crt
+#     - server.crt
+#     - server.key
+#   when: mosquitto_use_ssl
+#   register: certfiles
 
 - name: MOSQUITTO | Container running.
   containers.podman.podman_container:
     name: "{{ mosquitto_container_name }}"
     image: eclipse-mosquitto:latest
+    state: started
     env_file: "{{ mosquitto_config_dir }}/{{ mosquitto_container_name }}.env"
     restart_policy: on-failure:5
     publish:
       - "{{ mosquitto_port }}:{{ mosquitto_port }}"
-    ip: "{{ heimdall_internal_ip }}"
+    ip: "{{ mosquitto_internal_ip }}"
     volumes:
       - "{{ mosquitto_config_dir }}/config_bind_mount:/mosquitto/config"
       - "{{ mosquitto_config_dir }}/data_bind_mount:/mosquitto/data"

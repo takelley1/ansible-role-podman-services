@@ -28,14 +28,15 @@
   ansible.builtin.copy:
     dest: "{{ postgres_config_dir }}/postgres.env"
     content: "# Postgres environment variables"
-    owner: "{{ docker_user }}"
-    group: "{{ docker_user }}"
+    owner: "{{ podman_user }}"
+    group: "{{ podman_user }}"
     mode: "0640"
 
 - name: POSTGRES | Container running.
   containers.podman.podman_container:
     name: postgres
     image: postgres:latest
+    state: started
     env_file: "{{ postgres_config_dir }}/postgres.env"
     env:
       POSTGRES_PASSWORD: "{{ postgres_db_password }}"

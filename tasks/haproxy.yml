@@ -28,6 +28,7 @@
   containers.podman.podman_container:
     name: "{{ haproxy_container_name }}"
     image: haproxy:latest
+    state: started
     env_file: "{{ haproxy_config_dir }}/haproxy.env"
     restart_policy: on-failure:5
     publish:

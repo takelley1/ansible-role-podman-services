@@ -28,6 +28,7 @@
   containers.podman.podman_container:
     name: "{{ home_assistant_container_name }}"
     image: homeassistant/home-assistant:stable
+    state: started
     env_file: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
     restart_policy: on-failure:5
     env:
