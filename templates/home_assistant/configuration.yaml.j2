@@ -1,0 +1,50 @@
+{{ ansible_managed | comment }}
+default_config:
+
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# Basic setup information.
+homeassistant:
+  name: "{{ home_assistant_name }}"
+  latitude: "{{ home_assistant_latitude }}"
+  longitude: "{{ home_assistant_longitude }}"
+  elevation: "{{ home_assistant_elevation }}"
+  unit_system: "{{ home_assistant_unit_system }}"
+  time_zone: "{{ home_assistant_time_zone }}"
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - {{ podman_network_gateway | ansible.netcommon.ipmath(-1) }}
+        - 127.0.0.1
+        - ::1
+    - type: homeassistant
+
+# Add MQTT integration.
+mqtt:
+  broker: "{{ mqtt_ip_address }}"
+{% if mosquitto_use_password %}
+  username: "{{ mosquitto_username }}"
+  password: "{{ mosquitto_password }}"
+{% endif %}
+
+# Store data in an external database.
+recorder:
+  db_url: postgresql://{{ postgres_db_user }}:{{ postgres_db_password }}@{{ postgres_external_ip }}:{{ postgres_port }}/{{ postgres_db_name }}
+  auto_purge: true
+  commit_interval: 3
+  exclude:
+    entity_globs:
+      - sensor.weather*
+    entities:
+      - sun.sun # Don't record sun data.
+      - weather.home
+      - sensor.last_boot # Comes from 'systemmonitor' sensor platform.
+      - sensor.date
+    event_types:
+      - call_service # Don't record service calls.

@@ -57,6 +57,12 @@
     - configuration.yaml
   register: configfiles
 
+- name: HOME_ASSISTANT | Custom user config added to template
+  ansible.builtin.blockinfile:
+    path: "{{ home_assistant_config_dir }}/config_bind_mount/configuration.yaml"
+    block: "{{ lookup('file', 'home_assistant_custom_config') }}"
+  when: home_assistant_custom_config is defined
+
 - name: HOME_ASSISTANT | Container restarted
   containers.podman.podman_container:
     name: "{{ home_assistant_container_name }}"
