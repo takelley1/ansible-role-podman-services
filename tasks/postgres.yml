@@ -61,8 +61,8 @@
 
     - name: POSTGRES | Systemd unit file deployed
       template:
-        src: postgres/systemd/postgres-podman.service.j2
-        dest: /etc/systemd/system/postgres-podman.service
+        src: postgres/systemd/podman-postgres.service.j2
+        dest: /etc/systemd/system/podman-{{ postgres_container_name }}.service
         seuser: system_u
         serole: object_r
         setype: systemd_unit_file_t
@@ -72,7 +72,7 @@
 
     - name: POSTGRES | Systemd service enabled
       systemd:
-        name: postgres-podman.service
+        name: podman-{{ postgres_container_name }}.service
         enabled: true
         masked: false
         daemon_reload: true

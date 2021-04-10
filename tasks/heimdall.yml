@@ -39,8 +39,8 @@
 
     - name: HEIMDALL | Systemd unit file deployed
       template:
-        src: heimdall/systemd/heimdall-podman.service.j2
-        dest: /etc/systemd/system/heimdall-podman.service
+        src: heimdall/systemd/podman-heimdall.service.j2
+        dest: /etc/systemd/system/podman-{{ heimdall_container_name }}.service
         seuser: system_u
         serole: object_r
         setype: systemd_unit_file_t
@@ -50,7 +50,7 @@
 
     - name: HEIMDALL | Systemd service enabled
       systemd:
-        name: heimdall-podman.service
+        name: podman-{{ heimdall_container_name }}.service
         enabled: true
         masked: false
         daemon_reload: true

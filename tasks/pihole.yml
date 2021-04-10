@@ -48,8 +48,8 @@
 
     - name: PIHOLE | Systemd unit file deployed
       template:
-        src: pihole/systemd/pihole-podman.service.j2
-        dest: /etc/systemd/system/pihole-podman.service
+        src: pihole/systemd/podman-pihole.service.j2
+        dest: /etc/systemd/system/podman-{{ pihole_container_name }}.service
         seuser: system_u
         serole: object_r
         setype: systemd_unit_file_t
@@ -59,7 +59,7 @@
 
     - name: PIHOLE | Systemd service enabled
       systemd:
-        name: pihole-podman.service
+        name: podman-{{ pihole_container_name }}.service
         enabled: true
         masked: false
         daemon_reload: true
