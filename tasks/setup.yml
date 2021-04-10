@@ -27,12 +27,12 @@
       changed_when: false
       register: release
 
-    - name: SETUP | Repo GPG key present
+    - name: SETUP | Podman repo GPG key present
       ansible.builtin.apt_key:
         url: >
           https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ release.stdout }}/Release.key
 
-    - name: SETUP | Repo present
+    - name: SETUP | Podman repo present
       ansible.builtin.apt_repository:
         filename: podman-stable
         repo: >
