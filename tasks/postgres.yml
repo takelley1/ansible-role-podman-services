@@ -33,7 +33,7 @@
 
 - name: POSTGRES | Container running
   containers.podman.podman_container:
-    name: postgres
+    name: "{{ postgres_container_name }}"
     image: postgres:latest
     state: started
     env_file: "{{ postgres_config_dir }}/postgres.env"
