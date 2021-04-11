@@ -37,11 +37,38 @@
     state: touch
   changed_when: false
 
-- name: HAPROXY | Certificate imported
-  ansible.builtin.copy:
-    src: templates/haproxy/{{ haproxy_cert_filename }}
-    dest: "{{ haproxy_config_dir }}/config_bind_mount"
-    mode: "0440"
+- name: HAPROXY | Certificate generated
+  block:
+    - name: HAPROXY | CERT | Private key generated
+      community.crypto.openssl_privatekey:
+        path: "{{ haproxy_config_dir }}/config_bind_mount/{{ haproxy_cert_filename }}.key"
+        size: "{{ haproxy_cert_key_size }}"
+        type: "{{ haproxy_cert_type }}"
+        owner: "{{ podman_user }}"
+        group: "{{ podman_user }}"
+        mode: "0400"
+
+    - name: HAPROXY | CERT | Check for cert
+      ansible.builtin.stat:
+        path: "{{ haproxy_config_dir }}/config_bind_mount/{{ haproxy_cert_filename }}"
+      register: cert_path
+
+    - name: HAPROXY | CERT | Cert generated
+      community.crypto.x509_certificate:
+        path: "{{ haproxy_config_dir }}/config_bind_mount/{{ haproxy_cert_filename }}"
+        privatekey_path: "{{ haproxy_config_dir }}/config_bind_mount/{{ haproxy_cert_filename }}.key"
+        provider: selfsigned
+        owner: "{{ podman_user }}"
+        group: "{{ podman_user }}"
+        mode: "0400"
+      register: cert_generated
+      when: cert_path.stat.readable is not defined
+
+    - name: HAPROXY | CERT | Private key concatenated to cert
+      shell: >
+         cat "{{ haproxy_config_dir }}/config_bind_mount/{{ haproxy_cert_filename }}.key" >>
+         "{{ haproxy_config_dir }}/config_bind_mount/{{ haproxy_cert_filename }}"
+      when: cert_generated.changed
 
 - name: HAPROXY | Configuration file deployed
   ansible.builtin.template:

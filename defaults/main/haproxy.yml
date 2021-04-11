@@ -10,6 +10,10 @@ haproxy_http_port: "80"
 haproxy_https_port: "443"
 haproxy_stats_port: "9000"
 
+haproxy_cert_filename: cert.pem
+haproxy_cert_key_size: 2048
+haproxy_cert_type: RSA
+
 haproxy_force_https: true
 haproxy_enable_stats: true
 haproxy_stats_refresh_interval: 30s
