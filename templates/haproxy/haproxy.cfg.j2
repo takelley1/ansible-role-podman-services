@@ -59,19 +59,19 @@ frontend f_http
 frontend f_https
     bind *:{{ haproxy_https_port }} ssl crt /usr/local/etc/haproxy/{{ haproxy_cert_filename }}
 
-    {% if deploy_home_assistant %}
+    {% if podman_deploy_home_assistant %}
     acl home_assistant hdr_dom(host) -i homeassistant.{{ haproxy_subdomain }}.{{ domain }}
     {% endif %}
 
-    {% if deploy_home_assistant %}
+    {% if podman_deploy_home_assistant %}
     use_backend b_home_assistant if home_assistant
     {% endif %}
 
-    {% if deploy_pihole %}
+    {% if podman_deploy_pihole %}
     use_backend b_pihole if pihole
     {% endif %}
 
-    {% if deploy_heimdall %}
+    {% if podman_deploy_heimdall %}
     default_backend b_heimdall
     {% endif %}
 
@@ -79,18 +79,18 @@ frontend f_https
 # Backend configuration
 #---------------------------------------------------------------------
 
-{% if deploy_heimdall %}
+{% if podman_deploy_heimdall %}
 backend b_heimdall
     server s1_{{ heimdall_container_name }} {{ heimdall_internal_ip }}:{{ heimdall_port }} check ssl verify none
 {% endif %}
 
-{% if deploy_home_assistant %}
+{% if podman_deploy_home_assistant %}
 backend b_home_assistant
     option httpchk GET /
     server s1_{{ home_assistant_container_name }} {{ ansible_host }}:{{ home_assistant_port }} check
 {% endif %}
 
-{% if deploy_pihole %}
+{% if podman_deploy_pihole %}
 backend b_pihole
     option httpchk GET /
     server s1_{{ pihole_container_name }} {{ ansible_host }}:{{ pihole_port }} check
