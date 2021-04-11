@@ -77,7 +77,18 @@
 #   when: mosquitto_use_ssl
 #   register: certfiles
 
-- name: MOSQUITTO | Container running
+- name: MOSQUITTO | Check for systemd unit
+  ansible.builtin.stat:
+    path: /etc/systemd/system/podman-{{ mosquitto_container_name }}.service
+  register: unit_file
+
+- name: MOSQUITTO | Container running (systemd)
+  systemd:
+    name: podman-{{ mosquitto_container_name }}.service
+    state: started
+  when: unit_file.stat.exists is defined
+
+- name: MOSQUITTO | Container running (create)
   containers.podman.podman_container:
     name: "{{ mosquitto_container_name }}"
     image: eclipse-mosquitto:latest
@@ -92,6 +103,7 @@
       - "{{ mosquitto_config_dir }}/data_bind_mount:/mosquitto/data"
       - "{{ mosquitto_config_dir }}/log_bind_mount:/mosquitto/log"
       - /etc/localtime:/etc/localtime:ro
+  when: unit_file.stat.exists is not defined
 
 - name: MOSQUITTO | Password hashed
   shell: >

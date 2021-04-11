@@ -29,7 +29,18 @@
     state: touch
   changed_when: false
 
-- name: POSTGRES | Container running
+- name: POSTGRES | Check for systemd unit
+  ansible.builtin.stat:
+    path: /etc/systemd/system/podman-{{ postgres_container_name }}.service
+  register: unit_file
+
+- name: POSTGRES | Container running (systemd)
+  systemd:
+    name: podman-{{ postgres_container_name }}.service
+    state: started
+  when: unit_file.stat.exists is defined
+
+- name: POSTGRES | Container running (create)
   containers.podman.podman_container:
     name: "{{ postgres_container_name }}"
     image: postgres:latest
@@ -45,6 +56,7 @@
     ip: "{{ postgres_internal_ip }}"
     volumes:
       - "{{ postgres_config_dir }}/data_bind_mount:/var/lib/postgresql/data/pgdata"
+  when: unit_file.stat.exists is not defined
 
 - name: POSTGRES | Systemd config deployed
   include: systemd.yml
