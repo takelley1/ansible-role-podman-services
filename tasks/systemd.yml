@@ -25,17 +25,21 @@
       [Unit]
       Description=Podman container-{{ container_id }}
       Documentation=man:podman-generate-systemd(1)
+      Wants=network.target
+      After=network-online.target
 
       [Service]
+      Environment=PODMAN_SYSTEMD_UNIT=%n
       Restart=on-failure
+      TimeoutStopSec=70
       ExecStart=/usr/bin/podman start {{ container_id }}
       ExecStop=/usr/bin/podman stop -t 10 {{ container_id }}
-      KillMode=none
-      Type=forking
+      ExecStopPost=/usr/bin/podman stop -t 10 {{ container_id }}
       PIDFile=/var/run/containers/storage/overlay-containers/{{ container_id }}/userdata/conmon.pid
+      Type=forking
 
       [Install]
-      WantedBy=multi-user.target
+      WantedBy=multi-user.target default.target
 
 - name: SYSTEMD | Systemd service enabled
   systemd:
