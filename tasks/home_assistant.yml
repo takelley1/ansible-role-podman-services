@@ -4,15 +4,11 @@
   ansible.builtin.file:
     path: "{{ home_assistant_config_dir }}/config_bind_mount"
     state: directory
-    owner: "{{ podman_user }}"
-    group: "{{ podman_user }}"
     mode: "0750"
 
 - name: HOME_ASSISTANT | Environment file created
   ansible.builtin.file:
     path: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
-    owner: "{{ podman_user }}"
-    group: "{{ podman_user }}"
     mode: "0640"
     state: touch
   changed_when: false
@@ -29,7 +25,6 @@
   containers.podman.podman_container:
     name: "{{ home_assistant_container_name }}"
     image: homeassistant/home-assistant:stable
-    state: started
     env_file: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
     restart_policy: on-failure:5
     env:

@@ -17,7 +17,6 @@
   containers.podman.podman_container:
     name: "{{ heimdall_container_name }}"
     image: linuxserver/heimdall:latest
-    state: started
     env_file: "{{ heimdall_config_dir }}/heimdall.env"
     restart_policy: on-failure:5
     env:

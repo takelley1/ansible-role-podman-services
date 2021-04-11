@@ -21,7 +21,6 @@
   containers.podman.podman_container:
     name: "{{ pihole_container_name }}"
     image: pihole/pihole:latest
-    state: started
     env_file: "{{ pihole_config_dir }}/pihole.env"
     restart_policy: on-failure:5
     env:
