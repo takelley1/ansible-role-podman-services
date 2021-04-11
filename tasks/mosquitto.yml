@@ -83,6 +83,7 @@
     image: eclipse-mosquitto:latest
     env_file: "{{ mosquitto_config_dir }}/{{ mosquitto_container_name }}.env"
     restart_policy: on-failure:5
+    log_driver: journald
     publish:
       - "{{ mosquitto_port }}:{{ mosquitto_port }}"
     ip: "{{ mosquitto_internal_ip }}"
@@ -106,6 +107,7 @@
     state: force_restarted
     env_file: "{{ mosquitto_config_dir }}/{{ mosquitto_container_name }}.env"
     restart_policy: on-failure:5
+    log_driver: journald
     publish:
       - "{{ mosquitto_port }}:{{ mosquitto_port }}"
     ip: "{{ mosquitto_internal_ip }}"

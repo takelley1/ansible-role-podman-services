@@ -55,6 +55,7 @@
     image: haproxy:latest
     env_file: "{{ haproxy_config_dir }}/haproxy.env"
     restart_policy: on-failure:5
+    log_driver: journald
     publish:
       - "{{ haproxy_http_port }}:{{ haproxy_http_port }}"
       - "{{ haproxy_https_port }}:{{ haproxy_https_port }}"

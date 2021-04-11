@@ -23,6 +23,7 @@
     image: pihole/pihole:latest
     env_file: "{{ pihole_config_dir }}/pihole.env"
     restart_policy: on-failure:5
+    log_driver: journald
     env:
       TZ: "{{ timezone }}"
       WEBPASSWORD: "{{ pihole_web_password }}"

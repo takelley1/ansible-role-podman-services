@@ -19,6 +19,7 @@
     image: linuxserver/heimdall:latest
     env_file: "{{ heimdall_config_dir }}/heimdall.env"
     restart_policy: on-failure:5
+    log_driver: journald
     env:
       TZ: "{{ timezone }}"
     ip: "{{ heimdall_internal_ip }}"
