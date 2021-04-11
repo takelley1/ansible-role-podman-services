@@ -51,7 +51,7 @@
 
 # On first startup, we must wait for the container to create its default
 #   config files before we can deploy our own.
-- name: HOME_ASSISTANT | Initial config dir created
+- name: HOME_ASSISTANT | Wait for initial configuration
   ansible.builtin.wait_for:
     path: "{{ home_assistant_config_dir }}/config_bind_mount/deps"
 
