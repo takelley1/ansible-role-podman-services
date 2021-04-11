@@ -36,30 +36,6 @@
       - "{{ pihole_config_dir }}/config_bind_mount/etc/dnsmasq.d:/etc/dnsmasq.d"
 
 - name: PIHOLE | Systemd config deployed
-  block:
-    - name: PIHOLE | Get container ID
-      containers.podman.podman_container_info:
-        name: pihole
-      register: container_info
-
-    - name: PIHOLE | Set fact for container ID
-      set_fact:
-        pihole_id: "{{ container_info.containers[0].Id }}"
-
-    - name: PIHOLE | Systemd unit file deployed
-      template:
-        src: pihole/systemd/podman-pihole.service.j2
-        dest: /etc/systemd/system/podman-{{ pihole_container_name }}.service
-        seuser: system_u
-        serole: object_r
-        setype: systemd_unit_file_t
-        mode: "0644"
-        owner: root
-        group: root
-
-    - name: PIHOLE | Systemd service enabled
-      systemd:
-        name: podman-{{ pihole_container_name }}.service
-        enabled: true
-        masked: false
-        daemon_reload: true
+  include: systemd.yml
+  vars:
+    service: "{{ pihole_container_name }}"

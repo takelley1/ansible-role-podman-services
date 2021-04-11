@@ -1,0 +1,45 @@
+---
+
+- name: SYSTEMD | Get container ID
+  containers.podman.podman_container_info:
+    name: "{{ service }}"
+  register: container_info
+
+- name: SYSTEMD | Set fact for container ID
+  set_fact:
+    container_id: "{{ container_info.containers[0].Id }}"
+
+- name: SYSTEMD | Systemd unit file deployed
+  copy:
+    dest: /etc/systemd/system/podman-{{ service }}.service
+    seuser: system_u
+    serole: object_r
+    setype: systemd_unit_file_t
+    mode: "0644"
+    owner: root
+    group: root
+    content: |
+      # Managed by Ansible
+      # container-{{ container_id }}.service
+
+      [Unit]
+      Description=Podman container-{{ container_id }}
+      Documentation=man:podman-generate-systemd(1)
+
+      [Service]
+      Restart=on-failure
+      ExecStart=/usr/bin/podman start {{ container_id }}
+      ExecStop=/usr/bin/podman stop -t 10 {{ container_id }}
+      KillMode=none
+      Type=forking
+      PIDFile=/var/run/containers/storage/overlay-containers/{{ container_id }}/userdata/conmon.pid
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: SYSTEMD | Systemd service enabled
+  systemd:
+    name: podman-{{ service }}.service
+    enabled: true
+    masked: false
+    daemon_reload: true

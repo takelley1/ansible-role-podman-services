@@ -81,30 +81,6 @@
   when: configfiles.changed
 
 - name: HOME_ASSISTANT | Systemd config deployed
-  block:
-    - name: HOME_ASSISTANT | Get container ID
-      containers.podman.podman_container_info:
-        name: home-assistant
-      register: container_info
-
-    - name: HOME_ASSISTANT | Set fact for container ID
-      set_fact:
-        home_assistant_id: "{{ container_info.containers[0].Id }}"
-
-    - name: HOME_ASSISTANT | Systemd unit file deployed
-      template:
-        src: home_assistant/systemd/podman-home_assistant.service.j2
-        dest: /etc/systemd/system/podman-{{ home_assistant_container_name }}.service
-        seuser: system_u
-        serole: object_r
-        setype: systemd_unit_file_t
-        mode: "0644"
-        owner: root
-        group: root
-
-    - name: HOME_ASSISTANT | Systemd service enabled
-      systemd:
-        name: podman-{{ home_assistant_container_name }}.service
-        enabled: true
-        masked: false
-        daemon_reload: true
+  include: systemd.yml
+  vars:
+    service: "{{ home_assistant_container_name }}"

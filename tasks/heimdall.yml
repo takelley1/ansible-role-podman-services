@@ -26,31 +26,7 @@
     volumes:
       - "{{ heimdall_config_dir }}/config_bind_mount:/config"
 
-- name: HEIMDALL | Systemd config deployed
-  block:
-    - name: HEIMDALL | Get container ID
-      containers.podman.podman_container_info:
-        name: heimdall
-      register: container_info
-
-    - name: HEIMDALL | Set fact for container ID
-      set_fact:
-        heimdall_id: "{{ container_info.containers[0].Id }}"
-
-    - name: HEIMDALL | Systemd unit file deployed
-      template:
-        src: heimdall/systemd/podman-heimdall.service.j2
-        dest: /etc/systemd/system/podman-{{ heimdall_container_name }}.service
-        seuser: system_u
-        serole: object_r
-        setype: systemd_unit_file_t
-        mode: "0644"
-        owner: root
-        group: root
-
-    - name: HEIMDALL | Systemd service enabled
-      systemd:
-        name: podman-{{ heimdall_container_name }}.service
-        enabled: true
-        masked: false
-        daemon_reload: true
+- name: HAPROXY | Systemd config deployed
+  include: systemd.yml
+  vars:
+    service: "{{ heimdall_container_name }}"

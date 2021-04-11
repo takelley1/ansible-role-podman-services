@@ -65,30 +65,6 @@
       - "{{ haproxy_config_dir }}/config_bind_mount:/usr/local/etc/haproxy"
 
 - name: HAPROXY | Systemd config deployed
-  block:
-    - name: HAPROXY | Get container ID
-      containers.podman.podman_container_info:
-        name: haproxy
-      register: container_info
-
-    - name: HAPROXY | Set fact for container ID
-      set_fact:
-        haproxy_id: "{{ container_info.containers[0].Id }}"
-
-    - name: HAPROXY | Systemd unit file deployed
-      template:
-        src: haproxy/systemd/podman-haproxy.service.j2
-        dest: /etc/systemd/system/podman-{{ haproxy_container_name }}.service
-        seuser: system_u
-        serole: object_r
-        setype: systemd_unit_file_t
-        mode: "0644"
-        owner: root
-        group: root
-
-    - name: HAPROXY | Systemd service enabled
-      systemd:
-        name: podman-{{ haproxy_container_name }}.service
-        enabled: true
-        masked: false
-        daemon_reload: true
+  include: systemd.yml
+  vars:
+    service: "{{ haproxy_container_name }}"
