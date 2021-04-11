@@ -8,6 +8,10 @@
   import_tasks: heimdall.yml
   when: podman_deploy_heimdall
 
+- name: MAIN | Import Pihole tasks
+  import_tasks: pihole.yml
+  when: podman_deploy_pihole
+
 - name: MAIN | Import PostgreSQL tasks
   import_tasks: postgres.yml
   when: podman_deploy_postgres
