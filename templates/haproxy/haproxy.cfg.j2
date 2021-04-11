@@ -63,6 +63,10 @@ frontend f_https
     acl home_assistant hdr_dom(host) -i homeassistant.{{ haproxy_subdomain }}.{{ domain }}
     {% endif %}
 
+    {% if podman_deploy_pihole %}
+    acl pihole hdr_dom(host) -i pihole.{{ haproxy_subdomain }}.{{ domain }}
+    {% endif %}
+
     {% if podman_deploy_home_assistant %}
     use_backend b_home_assistant if home_assistant
     {% endif %}
