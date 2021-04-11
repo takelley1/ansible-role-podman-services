@@ -116,7 +116,7 @@
   containers.podman.podman_container:
     name: "{{ mosquitto_container_name }}"
     image: eclipse-mosquitto:latest
-    state: force_restarted
+    force_restart: true
     env_file: "{{ mosquitto_config_dir }}/{{ mosquitto_container_name }}.env"
     restart_policy: on-failure:5
     log_driver: journald
