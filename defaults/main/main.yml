@@ -5,7 +5,7 @@ podman_user: root
 
 timezone: America/New_York
 
-podman_include_setup_tasks: true
+podman_include_installation_tasks: true
 
 firewalld_zone: public
 podman_network_gateway: 10.88.0.1

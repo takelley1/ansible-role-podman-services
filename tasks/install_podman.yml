@@ -1,6 +1,6 @@
 ---
 
-- name: SETUP | Ufw enabled and running
+- name: INSTALL_PODMAN | Ufw enabled and running
   systemd:
     name: ufw
     state: started
@@ -8,7 +8,7 @@
     masked: false
   when: ansible_facts.os_family == "Debian"
 
-- name: SETUP | Firewalld enabled and running
+- name: INSTALL_PODMAN | Firewalld enabled and running
   systemd:
     name: firewalld
     state: started
@@ -16,50 +16,50 @@
     masked: false
   when: ansible_facts.os_family == "RedHat"
 
-- name: SETUP | Podman user exists
+- name: INSTALL_PODMAN | Podman user exists
   ansible.builtin.user:
     name: "{{ podman_user }}"
 
-- name: SETUP | Podman installed (Debian)
+- name: INSTALL_PODMAN | Podman installed (Debian)
   block:
-    - name: SETUP | Get release
+    - name: INSTALL_PODMAN | Get release
       shell: lsb_release -rs
       changed_when: false
       register: release
 
-    - name: SETUP | Podman repo GPG key present
+    - name: INSTALL_PODMAN | Podman repo GPG key present
       ansible.builtin.apt_key:
         url: >
           https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ release.stdout }}/Release.key
 
-    - name: SETUP | Podman repo present
+    - name: INSTALL_PODMAN | Podman repo present
       ansible.builtin.apt_repository:
         filename: podman-stable
         repo: >
           deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ release.stdout }} /
 
-    - name: SETUP | Podman installed
+    - name: INSTALL_PODMAN | Podman installed
       ansible.builtin.apt:
         update_cache: true
         name:
           - podman
   when: ansible_facts.os_family == "Debian"
 
-- name: SETUP | Podman installed (RedHat)
+- name: INSTALL_PODMAN | Podman installed (RedHat)
   ansible.builtin.dnf:
     name:
       - podman
       - python-podman-api
   when: ansible_facts.os_family == "RedHat"
 
-- name: SETUP | SELinux configured
+- name: INSTALL_PODMAN | SELinux configured
   block:
-    - name: SETUP | Check for rule
+    - name: INSTALL_PODMAN | Check for rule
       shell: semodule -l | grep -q permissive_container_t
       register: check
       changed_when: false
 
-    - name: SETUP | Add rule
+    - name: INSTALL_PODMAN | Add rule
       shell: semanage permissive -a container_t
       when: check.rc != 0
   when: ansible_facts.os_family == "RedHat"

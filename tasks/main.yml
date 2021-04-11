@@ -1,8 +1,8 @@
 ---
 
-- name: MAIN | Import setup tasks
-  import_tasks: setup.yml
-  when: podman_include_setup_tasks
+- name: MAIN | Import installation tasks
+  import_tasks: install_podman.yml
+  when: podman_include_installation_tasks
 
 - name: MAIN | Import Heimdall tasks
   import_tasks: heimdall.yml
