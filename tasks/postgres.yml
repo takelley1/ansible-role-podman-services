@@ -22,13 +22,6 @@
     state: directory
     mode: "0750"
 
-- name: POSTGRES | Environment file created
-  ansible.builtin.file:
-    dest: "{{ postgres_config_dir }}/postgres.env"
-    mode: "0640"
-    state: touch
-  changed_when: false
-
 # - name: POSTGRES | Check for systemd unit
 #   ansible.builtin.stat:
 #     path: /etc/systemd/system/podman-{{ postgres_container_name }}.service
@@ -44,7 +37,6 @@
   containers.podman.podman_container:
     name: "{{ postgres_container_name }}"
     image: postgres:latest
-    env_file: "{{ postgres_config_dir }}/postgres.env"
     log_level: "{{ postgres_log_level }}"
     log_driver: journald
     env:

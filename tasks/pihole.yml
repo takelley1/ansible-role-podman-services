@@ -10,13 +10,6 @@
     - config_bind_mount/etc/pihole
     - config_bind_mount/etc/dnsmasq.d
 
-- name: PIHOLE | Environment file created
-  ansible.builtin.file:
-    path: "{{ pihole_config_dir }}/pihole.env"
-    mode: "0640"
-    state: touch
-  changed_when: false
-
 # - name: PIHOLE | Check for systemd unit
 #   ansible.builtin.stat:
 #     path: /etc/systemd/system/podman-{{ pihole_container_name }}.service
@@ -32,7 +25,6 @@
   containers.podman.podman_container:
     name: "{{ pihole_container_name }}"
     image: pihole/pihole:latest
-    env_file: "{{ pihole_config_dir }}/pihole.env"
     restart_policy: on-failure:5
     log_level: "{{ pihole_log_level }}"
     log_driver: journald
