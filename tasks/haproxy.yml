@@ -76,18 +76,18 @@
     dest: "{{ haproxy_config_dir }}/config_bind_mount/haproxy.cfg"
     mode: "0640"
 
-- name: HAPROXY | Check for systemd unit
-  ansible.builtin.stat:
-    path: /etc/systemd/system/podman-{{ haproxy_container_name }}.service
-  register: unit_file
+# - name: HAPROXY | Check for systemd unit
+#   ansible.builtin.stat:
+#     path: /etc/systemd/system/podman-{{ haproxy_container_name }}.service
+#   register: unit_file
 
-- name: HAPROXY | Container running (systemd)
-  systemd:
-    name: podman-{{ haproxy_container_name }}.service
-    state: started
-  when: unit_file.stat.exists is defined
+# - name: HAPROXY | Container running (systemd)
+#   systemd:
+#     name: podman-{{ haproxy_container_name }}.service
+#     state: started
+#   when: unit_file.stat.exists is defined
 
-- name: HAPROXY | Container running (create)
+- name: HAPROXY | Container running
   containers.podman.podman_container:
     name: "{{ haproxy_container_name }}"
     image: haproxy:latest
@@ -102,7 +102,6 @@
     ip: "{{ haproxy_internal_ip }}"
     volumes:
       - "{{ haproxy_config_dir }}/config_bind_mount:/usr/local/etc/haproxy"
-  when: unit_file.stat.exists is not defined
 
 - name: HAPROXY | Systemd config deployed
   include: systemd.yml

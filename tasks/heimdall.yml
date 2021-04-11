@@ -13,18 +13,18 @@
     state: touch
   changed_when: false
 
-- name: HEIMDALL | Check for systemd unit
-  ansible.builtin.stat:
-    path: /etc/systemd/system/podman-{{ heimdall_container_name }}.service
-  register: unit_file
+# - name: HEIMDALL | Check for systemd unit
+#   ansible.builtin.stat:
+#     path: /etc/systemd/system/podman-{{ heimdall_container_name }}.service
+#   register: unit_file
 
-- name: HEIMDALL | Container running (systemd)
-  systemd:
-    name: podman-{{ heimdall_container_name }}.service
-    state: started
-  when: unit_file.stat.exists is defined
+# - name: HEIMDALL | Container running (systemd)
+#   systemd:
+#     name: podman-{{ heimdall_container_name }}.service
+#     state: started
+#   when: unit_file.stat.exists is defined
 
-- name: HEIMDALL | Container running (create)
+- name: HEIMDALL | Container running
   containers.podman.podman_container:
     name: "{{ heimdall_container_name }}"
     image: linuxserver/heimdall:latest
@@ -37,7 +37,6 @@
     ip: "{{ heimdall_internal_ip }}"
     volumes:
       - "{{ heimdall_config_dir }}/config_bind_mount:/config"
-  when: unit_file.stat.exists is not defined
 
 - name: HAPROXY | Systemd config deployed
   include: systemd.yml

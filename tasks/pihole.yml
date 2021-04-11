@@ -17,18 +17,18 @@
     state: touch
   changed_when: false
 
-- name: PIHOLE | Check for systemd unit
-  ansible.builtin.stat:
-    path: /etc/systemd/system/podman-{{ pihole_container_name }}.service
-  register: unit_file
+# - name: PIHOLE | Check for systemd unit
+#   ansible.builtin.stat:
+#     path: /etc/systemd/system/podman-{{ pihole_container_name }}.service
+#   register: unit_file
 
-- name: PIHOLE | Container running (systemd)
-  systemd:
-    name: podman-{{ pihole_container_name }}.service
-    state: started
-  when: unit_file.stat.exists is defined
+# - name: PIHOLE | Container running (systemd)
+#   systemd:
+#     name: podman-{{ pihole_container_name }}.service
+#     state: started
+#   when: unit_file.stat.exists is defined
 
-- name: PIHOLE | Container running (create)
+- name: PIHOLE | Container running
   containers.podman.podman_container:
     name: "{{ pihole_container_name }}"
     image: pihole/pihole:latest
@@ -46,7 +46,6 @@
     volumes:
       - "{{ pihole_config_dir }}/config_bind_mount/etc/pihole:/etc/pihole"
       - "{{ pihole_config_dir }}/config_bind_mount/etc/dnsmasq.d:/etc/dnsmasq.d"
-  when: unit_file.stat.exists is not defined
 
 - name: PIHOLE | Systemd config deployed
   include: systemd.yml
