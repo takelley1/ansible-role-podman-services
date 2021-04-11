@@ -5,4 +5,7 @@ podman_deploy_heimdall: true
 heimdall_config_dir: "{{ config_dir_prefix }}/{{ heimdall_container_name }}"
 heimdall_container_name: heimdall
 heimdall_internal_ip: "{{ podman_network_gateway | ansible.netcommon.ipmath(+2) }}"
+
+heimdall_log_level: error
+
 heimdall_port: "443" # This is used by HAProxy.

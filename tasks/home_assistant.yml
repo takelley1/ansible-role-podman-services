@@ -38,6 +38,7 @@
     image: homeassistant/home-assistant:stable
     env_file: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
     restart_policy: on-failure:5
+    log_level: "{{ home_assistant_log_level }}"
     log_driver: journald
     env:
       TZ: "{{ timezone }}"
@@ -78,6 +79,7 @@
     force_restart: true
     env_file: "{{ home_assistant_config_dir }}/{{ home_assistant_container_name }}.env"
     restart_policy: on-failure:5
+    log_level: "{{ home_assistant_log_level }}"
     log_driver: journald
     env:
       TZ: "{{ timezone }}"

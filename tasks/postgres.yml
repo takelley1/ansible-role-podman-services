@@ -45,6 +45,7 @@
     name: "{{ postgres_container_name }}"
     image: postgres:latest
     env_file: "{{ postgres_config_dir }}/postgres.env"
+    log_level: "{{ postgres_log_level }}"
     log_driver: journald
     env:
       POSTGRES_PASSWORD: "{{ postgres_db_password }}"

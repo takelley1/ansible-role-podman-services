@@ -9,5 +9,7 @@ pihole_container_name: pihole
 pihole_internal_ip: "{{ podman_network_gateway | ansible.netcommon.ipmath(+5) }}"
 pihole_port: "443" # This is used by HAProxy.
 
+pihole_log_level: error
+
 pihole_upstream_dns: 8.8.8.8;1.1.1.1
 pihole_query_logging: false

@@ -6,6 +6,8 @@ haproxy_config_dir: "{{ config_dir_prefix }}/{{ haproxy_container_name }}"
 haproxy_container_name: haproxy
 haproxy_internal_ip: "{{ podman_network_gateway | ansible.netcommon.ipmath(+1) }}"
 
+haproxy_log_level: error
+
 haproxy_http_port: "80"
 haproxy_https_port: "443"
 haproxy_stats_port: "9000"

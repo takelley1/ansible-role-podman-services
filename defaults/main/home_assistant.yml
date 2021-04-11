@@ -7,4 +7,7 @@ home_assistant_name: HomeAssistant
 home_assistant_config_dir: "{{ config_dir_prefix }}/{{ home_assistant_container_name }}"
 home_assistant_container_name: home_assistant
 # home_assistant_internal_ip: # Home Assistant must be on the host's network so it won't have an IP.
+
+home_assistant_log_level: error
+
 home_assistant_port: "8123"
