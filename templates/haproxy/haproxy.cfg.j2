@@ -12,9 +12,6 @@ global
     group     root
     daemon
 
-    # Turn on status unix socket.
-    #stats socket /var/opt/rh/rh-haproxy18/lib/haproxy/stats
-
 #---------------------------------------------------------------------
 # Common defaults that all the 'listen' and 'backend' sections will
 #   use if not designated in their block.
@@ -23,7 +20,7 @@ defaults
     mode       http
     log        global
     balance    roundrobin
-    option     httpchk HEAD /
+    option     httpchk GET /
     option     dontlognull
     option     http-server-close
     option     forwardfor except 127.0.0.0/8
@@ -36,7 +33,6 @@ defaults
     timeout    server          1m
     timeout    http-keep-alive 10s
     timeout    check           10s
-    maxconn    1000
 
 #---------------------------------------------------------------------
 # Frontend configuration
@@ -90,12 +86,10 @@ backend b_heimdall
 
 {% if podman_deploy_home_assistant %}
 backend b_home_assistant
-    option httpchk GET /
     server s1_{{ home_assistant_container_name }} {{ ansible_host }}:{{ home_assistant_port }} check
 {% endif %}
 
 {% if podman_deploy_pihole %}
 backend b_pihole
-    option httpchk GET /
     server s1_{{ pihole_container_name }} {{ ansible_host }}:{{ pihole_port }} check
 {% endif %}
