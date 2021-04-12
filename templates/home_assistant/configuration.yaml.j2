@@ -25,6 +25,7 @@ homeassistant:
         - ::1
     - type: homeassistant
 
+{% if podman_deploy_mosquitto %}
 # Add MQTT integration.
 mqtt:
   broker: "{{ mqtt_ip_address }}"
@@ -32,10 +33,13 @@ mqtt:
   username: "{{ mosquitto_username }}"
   password: "{{ mosquitto_password }}"
 {% endif %}
+{% endif %}
 
-# Store data in an external database.
 recorder:
+{% if home_assistant_use_postgres %}
+  # Store data in an external database.
   db_url: postgresql://{{ postgres_db_user }}:{{ postgres_db_password }}@{{ postgres_external_ip }}:{{ postgres_port }}/{{ postgres_db_name }}
+{% endif %}
   auto_purge: true
   commit_interval: 3
   exclude:
