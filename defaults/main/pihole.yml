@@ -7,7 +7,7 @@ podman_deploy_pihole: true
 pihole_config_dir: "{{ config_dir_prefix }}/{{ pihole_container_name }}"
 pihole_container_name: pihole
 pihole_internal_ip: "{{ podman_network_gateway | ansible.netcommon.ipmath(+5) }}"
-pihole_port: "443" # This is used by HAProxy.
+pihole_port: "80"
 
 pihole_log_level: error
 
