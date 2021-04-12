@@ -38,7 +38,7 @@ defaults
 # Frontend configuration
 #---------------------------------------------------------------------
 
-{% if haproxy_enable_stats %}
+{% if haproxy_enable_stats -%}
 frontend f_stats
     bind *:{{ haproxy_stats_port }}
     stats enable
@@ -48,28 +48,34 @@ frontend f_stats
 
 frontend f_http
     bind *:{{ haproxy_http_port }}
-    {% if haproxy_force_https %}
+    {% if haproxy_force_https -%}
     http-request redirect scheme https code 301 if !{ ssl_fc }
     {% endif %}
 
 frontend f_https
     bind *:{{ haproxy_https_port }} ssl crt /usr/local/etc/haproxy/{{ haproxy_cert_filename }}
 
-    {% if podman_deploy_home_assistant %}
     acl home_assistant hdr_dom(host) -i homeassistant.{{ haproxy_subdomain }}.{{ domain }}
-    {% endif %}
+    {% if podman_deploy_home_assistant -%}
+    {% endif -%}
 
-    {% if podman_deploy_pihole %}
     acl pihole hdr_dom(host) -i pihole.{{ haproxy_subdomain }}.{{ domain }}
-    {% endif %}
+    {% if podman_deploy_pihole -%}
+    {% endif -%}
 
-    {% if podman_deploy_home_assistant %}
     use_backend b_home_assistant if home_assistant
-    {% endif %}
+    {% if podman_deploy_heimdall -%}
+    {% endif -%}
+    {% if podman_deploy_home_assistant -%}
+    {% endif -%}
 
-    {% if podman_deploy_pihole %}
-    use_backend b_pihole if pihole
-    {% endif %}
+    {% if podman_deploy_pihole -%}
+    use_backend b_{{ pihole_container_name }} if acl_pihole
+    {% endif -%}
+
+    {% if podman_deploy_heimdall -%}
+    use_backend b_{{ heimdall_container_name }} if acl_heimdall
+    {% endif -%}
 
     {% if haproxy_default_backend is defined -%}
     default_backend b_{{ haproxy_default_backend }}
@@ -79,17 +85,17 @@ frontend f_https
 # Backend configuration
 #---------------------------------------------------------------------
 
-{% if podman_deploy_heimdall %}
 backend b_heimdall
     server s1_{{ heimdall_container_name }} {{ heimdall_internal_ip }}:{{ heimdall_port }} check ssl verify none
+{% if podman_deploy_heimdall -%}
 {% endif %}
 
-{% if podman_deploy_home_assistant %}
 backend b_home_assistant
     server s1_{{ home_assistant_container_name }} {{ ansible_host }}:{{ home_assistant_port }} check
+{% if podman_deploy_home_assistant -%}
 {% endif %}
 
-{% if podman_deploy_pihole %}
 backend b_pihole
     server s1_{{ pihole_container_name }} {{ ansible_host }}:{{ pihole_port }} check
+{% if podman_deploy_pihole -%}
 {% endif %}
