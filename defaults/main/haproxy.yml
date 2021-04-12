@@ -8,6 +8,7 @@ haproxy_internal_ip: "{{ podman_network_gateway | ansible.netcommon.ipmath(+1) }
 
 # debug, info, notice, warning, err, crit, alert, emerg
 haproxy_log_level: notice
+haproxy_log_format: "[%Tl] client=%ci, frontend=%fi:%fp, backend=%b, path=%HU, method=%HM, status=%ST"
 
 haproxy_http_port: "80"
 haproxy_https_port: "443"

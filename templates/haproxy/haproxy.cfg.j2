@@ -19,6 +19,9 @@ global
 defaults
     mode       http
     log        global
+{% if haproxy_log_format is defined %}
+    log-format "{{ haproxy_log_format }}"
+{% endif %}
     balance    roundrobin
     option     httpchk GET /
     option     dontlognull
