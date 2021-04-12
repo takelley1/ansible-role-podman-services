@@ -22,3 +22,4 @@ haproxy_enable_stats: true
 haproxy_stats_refresh_interval: 30s
 
 haproxy_subdomain: admin
+haproxy_default_backend: "{{ heimdall_container_name }}"
