@@ -55,18 +55,20 @@ frontend f_http
 frontend f_https
     bind *:{{ haproxy_https_port }} ssl crt /usr/local/etc/haproxy/{{ haproxy_cert_filename }}
 
-    acl home_assistant hdr_dom(host) -i homeassistant.{{ haproxy_subdomain }}.{{ domain }}
     {% if podman_deploy_home_assistant -%}
+    acl acl_home_assistant path_beg /static/icons/ /static/fonts/ /static/translations/ /static/images/ /static/panels/ /static/polyfills /api/ /auth/ /frontend_latest/ /frontend_es5/ /local/ /lovelace /map /config /developer-tools /history /logbook /profile /states /hassio /onboarding.html /service_worker.js /authorize.html /manifest.json
     {% endif -%}
 
-    acl pihole hdr_dom(host) -i pihole.{{ haproxy_subdomain }}.{{ domain }}
     {% if podman_deploy_pihole -%}
+    acl acl_pihole path_beg /admin /{{ pihole_container_name }}
     {% endif -%}
 
-    use_backend b_home_assistant if home_assistant
     {% if podman_deploy_heimdall -%}
+    acl acl_heimdall path_beg /{{ heimdall_container_name }} /css /js /img /favicon /items /users /apple-icon /ms-icon /tags /settings
     {% endif -%}
+
     {% if podman_deploy_home_assistant -%}
+    use_backend b_{{ home_assistant_container_name }} if acl_home_assistant
     {% endif -%}
 
     {% if podman_deploy_pihole -%}
