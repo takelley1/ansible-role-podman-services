@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------
 global
     # Log to stdout since we're in a container.
-    log       stdout format raw local0
+    log       stdout format raw local0 {{ haproxy_log_level }}
     pidfile   /var/run/haproxy.pid
     maxconn   1000
     user      root
