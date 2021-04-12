@@ -6,17 +6,6 @@
     state: directory
     mode: "0750"
 
-# - name: HEIMDALL | Check for systemd unit
-#   ansible.builtin.stat:
-#     path: /etc/systemd/system/podman-{{ heimdall_container_name }}.service
-#   register: unit_file
-
-# - name: HEIMDALL | Container running (systemd)
-#   systemd:
-#     name: podman-{{ heimdall_container_name }}.service
-#     state: started
-#   when: unit_file.stat.exists is defined
-
 - name: HEIMDALL | Container running
   containers.podman.podman_container:
     name: "{{ heimdall_container_name }}"

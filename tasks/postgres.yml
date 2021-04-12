@@ -22,17 +22,6 @@
     state: directory
     mode: "0750"
 
-# - name: POSTGRES | Check for systemd unit
-#   ansible.builtin.stat:
-#     path: /etc/systemd/system/podman-{{ postgres_container_name }}.service
-#   register: unit_file
-
-# - name: POSTGRES | Container running (systemd)
-#   systemd:
-#     name: podman-{{ postgres_container_name }}.service
-#     state: started
-#   when: unit_file.stat.exists is defined
-
 - name: POSTGRES | Container running
   containers.podman.podman_container:
     name: "{{ postgres_container_name }}"

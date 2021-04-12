@@ -21,17 +21,6 @@
       HTTPS_PROXY={{ proxy_url }}
   when: use_proxy
 
-# - name: HOME_ASSISTANT | Check for systemd unit
-#   ansible.builtin.stat:
-#     path: /etc/systemd/system/podman-{{ home_assistant_container_name }}.service
-#   register: unit_file
-
-# - name: HOME_ASSISTANT | Container running (systemd)
-#   systemd:
-#     name: podman-{{ home_assistant_container_name }}.service
-#     state: started
-#   when: unit_file.stat.exists is defined
-
 - name: HOME_ASSISTANT | Container running
   containers.podman.podman_container:
     name: "{{ home_assistant_container_name }}"
