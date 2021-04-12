@@ -87,17 +87,18 @@ frontend f_https
 # Backend configuration
 #---------------------------------------------------------------------
 
-backend b_heimdall
-    server s1_{{ heimdall_container_name }} {{ heimdall_internal_ip }}:{{ heimdall_port }} check ssl verify none
 {% if podman_deploy_heimdall -%}
+backend b_{{ heimdall_container_name }}
+    http-request replace-path /{{ heimdall_container_name }}/?(.*) /\1
+    server s_{{ heimdall_container_name }} {{ heimdall_internal_ip }}:{{ heimdall_port }} check ssl verify none
 {% endif %}
 
-backend b_home_assistant
-    server s1_{{ home_assistant_container_name }} {{ ansible_host }}:{{ home_assistant_port }} check
 {% if podman_deploy_home_assistant -%}
+backend b_{{ home_assistant_container_name }}
+    server s_{{ home_assistant_container_name }} {{ ansible_host }}:{{ home_assistant_port }} check
 {% endif %}
 
-backend b_pihole
-    server s1_{{ pihole_container_name }} {{ ansible_host }}:{{ pihole_port }} check
 {% if podman_deploy_pihole -%}
+backend b_{{ pihole_container_name }}
+    server s_{{ pihole_container_name }} {{ pihole_internal_ip }}:{{ pihole_port }} check
 {% endif %}
