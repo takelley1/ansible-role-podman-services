@@ -18,7 +18,7 @@
 
 - name: POSTGRES | Config directory created
   ansible.builtin.file:
-    path: "{{ postgres_config_dir }}/data_bind_mount"
+    path: "{{ (postgres_config_dir, 'data_bind_mount') | path_join }}"
     state: directory
     mode: "0750"
 

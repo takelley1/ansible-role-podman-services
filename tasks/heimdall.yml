@@ -2,7 +2,7 @@
 
 - name: HEIMDALL | Config directory created
   ansible.builtin.file:
-    path: "{{ heimdall_config_dir }}/config_bind_mount"
+    path: "{{ (heimdall_config_dir, 'config_bind_mount') | path_join }}"
     state: directory
     mode: "0750"
 

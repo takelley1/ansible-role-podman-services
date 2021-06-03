@@ -2,7 +2,7 @@
 
 - name: HOME_ASSISTANT | Config directory created
   ansible.builtin.file:
-    path: "{{ home_assistant_config_dir }}/config_bind_mount"
+    path: "{{ (home_assistant_config_dir, 'config_bind_mount') | path_join }}"
     state: directory
     mode: "0750"
 
@@ -42,7 +42,7 @@
 #   config files before we can deploy our own.
 - name: HOME_ASSISTANT | Wait for initial configuration
   ansible.builtin.wait_for:
-    path: "{{ home_assistant_config_dir }}/config_bind_mount/deps"
+    path: "{{ (home_assistant_config_dir, 'config_bind_mount', 'deps') | path_join }}"
 
 # Deploy the user's custom config files to overwrite the defaults.
 - name: HOME_ASSISTANT | Configuration templates deployed
@@ -56,8 +56,8 @@
 
 - name: HOME_ASSISTANT | Custom user config added to template
   ansible.builtin.blockinfile:
-    path: "{{ home_assistant_config_dir }}/config_bind_mount/configuration.yaml"
-    block: "{{ lookup('file', home_assistant_custom_config) }}"
+    path: "{{ (home_assistant_config_dir, 'config_bind_mount', 'configuration.yaml') | path_join }}"
+    block: "{{ (lookup('file', home_assistant_custom_config) }}"
   when: home_assistant_custom_config is defined
 
 - name: HOME_ASSISTANT | Container restarted

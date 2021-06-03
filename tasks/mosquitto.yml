@@ -30,7 +30,7 @@
 
 - name: MOSQUITTO | Environment file created
   ansible.builtin.file:
-    path: "{{ mosquitto_config_dir }}/mosquitto.env"
+    path: "{{ (mosquitto_config_dir, 'mosquitto.env') | path_join }}"
     owner: "{{ podman_user }}"
     group: "{{ podman_user }}"
     mode: "0640"
@@ -39,7 +39,7 @@
 
 - name: MOSQUITTO | Proxy config added
   ansible.builtin.copy:
-    dest: "{{ mosquitto_config_dir }}/mosquitto.env"
+    dest: "{{ (mosquitto_config_dir, 'mosquitto.env') | path_join }}"
     content: |
       HTTP_PROXY={{ proxy_url }}
       HTTPS_PROXY={{ proxy_url }}
@@ -52,7 +52,7 @@
     mode: "0640"
   loop:
     - src: mosquitto.conf
-      dest: "{{ mosquitto_config_dir }}/config_bind_mount/mosquitto.conf"
+      dest: "{{ (mosquitto_config_dir, 'config_bind_mount', 'mosquitto.conf') | path_join }}"
     - src: mosquitto.logrotate
       dest: /etc/logrotate.d/mosquitto
   register: configfiles
@@ -60,7 +60,7 @@
 - name: MOSQUITTO | Password file deployed
   ansible.builtin.template:
     src: mosquitto/mosquitto.password.j2
-    dest: "{{ mosquitto_config_dir }}/config_bind_mount/mosquitto.password"
+    dest: "{{ (mosquitto_config_dir, 'config_bind_mount', 'mosquitto.password') | path_join }}"
     mode: "0640"
   changed_when: false
   when: mosquitto_use_password
