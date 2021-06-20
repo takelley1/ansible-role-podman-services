@@ -131,6 +131,6 @@
   when: mosquitto_use_password or certfiles.changed or configfiles.changed
 
 - name: MOSQUITTO | Systemd config deployed
-  include: systemd.yml
+  ansible.builtin.include: systemd.yml
   vars:
     service: "{{ mosquitto_container_name }}"

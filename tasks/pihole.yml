@@ -29,6 +29,6 @@
       - "{{ pihole_config_dir }}/config_bind_mount/etc/dnsmasq.d:/etc/dnsmasq.d"
 
 - name: PIHOLE | Systemd config deployed
-  include: systemd.yml
+  ansible.builtin.include: systemd.yml
   vars:
     service: "{{ pihole_container_name }}"

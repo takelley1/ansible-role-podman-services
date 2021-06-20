@@ -1,29 +1,29 @@
 ---
 
 - name: MAIN | Import installation tasks
-  import_tasks: install_podman.yml
   when: podman_include_installation_tasks
+  ansible.builtin.import_tasks: install_podman.yml
 
 - name: MAIN | Import Heimdall tasks
-  import_tasks: heimdall.yml
+  ansible.builtin.import_tasks: heimdall.yml
   when: podman_deploy_heimdall
 
 - name: MAIN | Import Pihole tasks
-  import_tasks: pihole.yml
+  ansible.builtin.import_tasks: pihole.yml
   when: podman_deploy_pihole
 
 - name: MAIN | Import PostgreSQL tasks
-  import_tasks: postgres.yml
+  ansible.builtin.import_tasks: postgres.yml
   when: podman_deploy_postgres
 
 - name: MAIN | Import Mosquitto tasks
-  import_tasks: mosquitto.yml
+  ansible.builtin.import_tasks: mosquitto.yml
   when: podman_deploy_mosquitto
 
 - name: MAIN | Import Home Assistant tasks
-  import_tasks: home_assistant.yml
+  ansible.builtin.import_tasks: home_assistant.yml
   when: podman_deploy_home_assistant
 
 - name: MAIN | Import HAProxy tasks
-  import_tasks: haproxy.yml
+  ansible.builtin.import_tasks: haproxy.yml
   when: podman_deploy_haproxy

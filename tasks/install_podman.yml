@@ -1,7 +1,7 @@
 ---
 
 - name: INSTALL_PODMAN | Ufw enabled and running
-  systemd:
+  ansible.builtin.systemd:
     name: ufw
     state: started
     enabled: true
@@ -9,7 +9,7 @@
   when: ansible_facts.os_family == "Debian"
 
 - name: INSTALL_PODMAN | Firewalld enabled and running
-  systemd:
+  ansible.builtin.systemd:
     name: firewalld
     state: started
     enabled: true

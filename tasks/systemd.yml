@@ -6,11 +6,11 @@
   register: container_info
 
 - name: SYSTEMD | Set fact for container ID
-  set_fact:
+  ansible.builtin.set_fact:
     container_id: "{{ container_info.containers[0].Id }}"
 
 - name: SYSTEMD | Systemd unit file deployed
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/system/podman-{{ service }}.service
     seuser: system_u
     serole: object_r
