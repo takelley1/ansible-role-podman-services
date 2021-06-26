@@ -19,7 +19,7 @@ global
 defaults
     mode       http
     log        global
-{% if haproxy_log_format is defined %}
+{% if haproxy_log_format is defined and haproxy_log_format !="" %}
     log-format "{{ haproxy_log_format }}"
 {% endif %}
     balance    roundrobin
@@ -82,7 +82,7 @@ frontend f_https
     use_backend b_{{ heimdall_container_name }} if acl_heimdall
     {% endif -%}
 
-    {% if haproxy_default_backend is defined -%}
+    {% if haproxy_default_backend is defined and haproxy_default_backend !="" -%}
     default_backend b_{{ haproxy_default_backend }}
     {% endif %}
 
