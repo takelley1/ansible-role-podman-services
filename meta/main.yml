@@ -1,5 +1,10 @@
 ---
 
+galaxy_info:
+  role_name: podman_services
+  description: Install and configure podman services
+  namespace: takelley1
+
 collections:
   - ansible.posix
   - community.general
